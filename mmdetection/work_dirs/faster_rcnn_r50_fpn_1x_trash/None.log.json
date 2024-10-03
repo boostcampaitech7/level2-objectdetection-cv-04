@@ -1,0 +1,2 @@
+{"mode": "train", "epoch": 1, "iter": 50, "lr": 0.00198, "memory": 2099, "data_time": 0.05036, "loss_rpn_cls": 0.48194, "loss_rpn_bbox": 0.05483, "loss_cls": 0.56207, "acc": 89.55957, "loss_bbox": 0.09793, "loss": 1.19677, "grad_norm": 6.78093, "time": 0.27315}
+{"mode": "train", "epoch": 1, "iter": 100, "lr": 0.00398, "memory": 2099, "data_time": 0.00637, "loss_rpn_cls": 0.19173, "loss_rpn_bbox": 0.05836, "loss_cls": 0.37337, "acc": 93.44629, "loss_bbox": 0.24444, "loss": 0.86789, "grad_norm": 3.4586, "time": 0.19467}
