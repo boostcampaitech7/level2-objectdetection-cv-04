@@ -18,6 +18,7 @@ Output : 모델은 bbox 좌표, 카테고리, score 값을 리턴합니다. 이�
 ## Model 
 
 Baseline code는 Faster R-CNN을 기본값으로 두고 있습니다. 
+detectron2는 최신 버전까지, mmdetection은 2.x 버전까지 지원하므로 모델 사용에 제한이 있습니다.
 
 ## Usage
 
@@ -78,6 +79,7 @@ project_root/
 │   └── train.json
 │
 ├── detectron2/
+│   ├── detectron2 folders
 │   ├── train.py
 │   └── inference.py
 │
@@ -86,6 +88,7 @@ project_root/
 │   └── inference.py
 │
 ├── mmdetection/
+│   ├── mmdetection folders
 │   ├── train.py
 │   └── inference.py
 │
