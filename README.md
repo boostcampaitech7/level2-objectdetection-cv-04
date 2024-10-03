@@ -92,25 +92,18 @@ project_root/
 │   ├── train.py
 │   └── inference.py
 │
-├── src/
-│   ├── __init__.py
-│   ├── dataset.py
-│   ├── transforms.py
-│   ├── models.py
-│   ├── trainer.py
-│   ├── layer_modification
-│   └── utils.py
+├── requirements.txt
 └── README.md
 ```
 
 
 ----
-## Experiment (~24.09.20)
+## Experiment (~24.10.24)
 ### Experiment 규칙
 <br>
-Step1 .  반드시 Kanban에 실험 계획을 올려주세요
+Step1 .  반드시 notion에 실험 계획을 올려주세요
 <br>
-  Step2. 실험 후 실험 내용은 브랜치 명 "exp/{실험할 내용}"으로 깃에 올려주세요.<br>
+Step2. 실험 후 실험 내용은 브랜치 명 "exp/{실험할 내용}"으로 깃에 올려주세요.<br>
  Step3.  실험 결과는 구글 시트에 기록해주세요
 
 ### Hyperparameter Tuning Experiment
