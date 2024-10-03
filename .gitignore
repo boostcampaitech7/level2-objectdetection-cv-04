@@ -13,14 +13,9 @@ env/
 
 # Dataset
 dataset/
-*.tar.gz
-
-# Model 
-*.pth
-
+*.csv
 # Output files
 output/
-*.csv
 
 
 # Logs
