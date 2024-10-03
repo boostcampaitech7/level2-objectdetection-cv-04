@@ -33,8 +33,8 @@ def main(args):
 ##
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Faster R-CNN Training")
-    parser.add_argument('--annotation', type=str, default='/data/ephemeral/home/deamin/dataset/train.json', help='path to annotation file')
-    parser.add_argument('--data_dir', type=str, default='/data/ephemeral/home/deamin/dataset/', help='path to data directory')
+    parser.add_argument('--annotation', type=str, default='../dataset/train.json', help='path to annotation file')
+    parser.add_argument('--data_dir', type=str, default='../dataset/trian', help='path to data directory')
     parser.add_argument('--batch_size', type=int, default=16, help='batch size')
     parser.add_argument('--num_workers', type=int, default=8, help='number of workers')
     parser.add_argument('--num_classes', type=int, default=11, help='number of classes')
