@@ -82,9 +82,15 @@ project_root/
 │   ├── train.py
 │   └── inference.py
 │
-├── faster_rcnn/
+├── pytorch_detection/
 │   ├── train.py
-│   └── inference.py
+│   ├── inference.py
+│   └── src/
+│      ├── config.py
+│      ├── inference.py
+│      ├── model.py
+│      ├── trainer.py
+│      └── utils.py
 │
 ├── mmdetection/
 │   ├── mmdetection folders
