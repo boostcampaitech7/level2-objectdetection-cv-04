@@ -28,6 +28,9 @@ def main(args):
     
     train_fn(args.num_epochs, train_data_loader, optimizer, model, device, args.save_path)
 
+## 
+## add_argument의 파일 경로를 수정할 필요가 있습니다.
+##
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Faster R-CNN Training")
     parser.add_argument('--annotation', type=str, default='/data/ephemeral/home/deamin/dataset/train.json', help='path to annotation file')
