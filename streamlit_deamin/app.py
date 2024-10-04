@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="러닝메이트 pj2 팀 페이지", page_icon="🧊")
+st.set_page_config(page_title="러닝메이트 pj2 팀 페이지", page_icon="🧊", layout="wide")
 
 st.write("# 러닝메이트 Object Detection:running:")
 

@@ -3,7 +3,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
-st.set_page_config(page_title="Load & Save Log", page_icon="🔍")
+st.set_page_config(page_title="Load & Save Log", page_icon="🔍", layout="wide")
 
 # Google Sheets API 설정
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
