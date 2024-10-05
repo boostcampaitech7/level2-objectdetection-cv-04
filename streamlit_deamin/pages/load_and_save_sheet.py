@@ -7,7 +7,7 @@ st.set_page_config(page_title="Load & Save Log", page_icon="🔍", layout="wide"
 
 # Google Sheets API 설정
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name('/data/ephemeral/home/deamin/nbc-7-project-2ee86f1b06b2.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('/your_file_path/level2-objectdetection-cv-04/nbc-7-project-2ee86f1b06b2.json', scope)
 client = gspread.authorize(creds)
 
 # 스프레드시트 열기 (URL 또는 스프레드시트 ID로 지정)

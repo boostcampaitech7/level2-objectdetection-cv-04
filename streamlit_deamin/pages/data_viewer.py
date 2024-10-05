@@ -10,8 +10,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import random
-
 # plotly 설치 필요
+
 st.set_page_config(page_title="Object Detection Viewer", page_icon="🔍")
 
 @st.cache_data
@@ -74,7 +74,7 @@ def draw_bounding_boxes(image, annotations, image_id, color_map):
 
 def copy_image_to_eda(original_image_path, debug_image_path, dataset_folder, Train = True):
     # 다른 folder에 저장하고 싶으면 이 경로를 수정하세요.
-    eda_folder = "/data/ephemeral/home/deamin/EDA_image"
+    eda_folder = "your_dataset_path/EDA_image"
     dataset_eda_folder = os.path.join(eda_folder, dataset_folder)
     os.makedirs(dataset_eda_folder, exist_ok=True)
     
@@ -134,6 +134,7 @@ def main():
             st.rerun()   
     
     json_path = f"/data/ephemeral/home/deamin/dataset/{dataset_folder}.json"
+    #json_path = f"your_dataset_path/{dataset_folder}.annotations.json"
     annotations = load_annotations(json_path)
     
     color_map = get_color_map(annotations['categories'])
@@ -150,7 +151,7 @@ def main():
     with col2:
         if st.button("EDA 폴더에 복사"):
             current_image = image_list[st.session_state.current_image_index]
-            original_image_path = os.path.join("/data/ephemeral/home/deamin/dataset/", current_image)
+            original_image_path = os.path.join("your_dataset_path/", current_image)
             debug_image_path = "debug_image_with_boxes.png"
             isTrain = True if dataset_folder == 'train' else 'test' 
             copied, result = copy_image_to_eda(original_image_path, debug_image_path, dataset_folder, isTrain)
@@ -179,7 +180,7 @@ def main():
 
     
     if current_image:
-        image_path = os.path.join("/data/ephemeral/home/deamin/dataset/", current_image)
+        image_path = os.path.join("your_dataset_path/", current_image)
         image = Image.open(image_path)
 
         image_info = next((img for img in annotations['images'] if img['file_name'] == current_image), None)

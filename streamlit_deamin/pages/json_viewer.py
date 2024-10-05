@@ -12,7 +12,8 @@ def main():
 
     dataset_folder = st.selectbox("데이터셋을 선택하세요:", ["train", "test"])
     
-    json_path = f"/data/ephemeral/home/deamin/dataset/{dataset_folder}.json"
+    #json_path = f"/data/ephemeral/home/deamin/dataset/{dataset_folder}.json"
+    json_path = f"your_dataset_path/{dataset_folder}.annotations.json"
     annotations = load_annotations(json_path)
     
     image_list = [img['file_name'] for img in annotations['images']]
