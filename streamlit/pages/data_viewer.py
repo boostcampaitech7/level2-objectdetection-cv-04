@@ -133,8 +133,8 @@ def main():
         if st.session_state.previous_dataset is not None:  # 첫 실행이 아닌 경우에만 rerun
             st.rerun()   
     
-    json_path = f"/data/ephemeral/home/deamin/dataset/{dataset_folder}.json"
-    #json_path = f"your_dataset_path/{dataset_folder}.annotations.json"
+    #json_path = f"/data/ephemeral/home/deamin/dataset/{dataset_folder}.json"
+    json_path = f"your_dataset_path/{dataset_folder}.annotations.json"
     annotations = load_annotations(json_path)
     
     color_map = get_color_map(annotations['categories'])
