@@ -5,7 +5,7 @@ from PIL import Image
 import matplotlib.patches as patches
 
 # 데이터를 Pandas로 읽어오기
-data = './work_dirs/10072347_cascade_rcnn_x101_32x4d_swin_imgscale_720_anchor_generator_1x_trash/submission_latest.csv'
+data = './work_dirs/10081325_cascade_rcnn_x101_32x4d_swin_imgscale_720_anchor_generator_1x_trash (anchor generator changed directly in config)/submission_latest.csv'
 
 # DataFrame 생성
 df = pd.read_csv(data)
@@ -72,12 +72,12 @@ def visualize_and_save_bbox(row):
     axes[1].axis('off')  # 축 제거
 
     # 이미지 저장 (저장 경로는 원하는 경로로 수정)
-    output_path = os.path.join('output_10072347_cascade_rcnn_x101_32x4d_swin_imgscale_720_anchor_generator_1x_trash', os.path.basename(img_path))
+    output_path = os.path.join('output', os.path.basename(img_path))
     plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
     plt.close()
 
 # 이미지가 저장될 output 디렉토리 생성
-os.makedirs('output_10072347_cascade_rcnn_x101_32x4d_swin_imgscale_720_anchor_generator_1x_trash', exist_ok=True)
+os.makedirs('output', exist_ok=True)
 
 # 모든 행에 대해 시각화 및 저장
 for _, row in df.iterrows():
