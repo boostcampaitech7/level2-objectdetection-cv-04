@@ -63,7 +63,7 @@ def main():
     patch_norm=True,
     out_channels=[384, 768, 1536, 3072],
     init_cfg=dict(type='Pretrained', checkpoint='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window7_224_22k.pth')),
-    # cfg.model.rpn_head.anchor_generator.ratios = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0]
+    # cfg.model.rpn_head.anchor_generator.ratios = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0] # This configuration has been applied directly on config file
     # cfg.model.rpn_head.loss_cls=dict(
     #         type='FocalLoss')
     # cfg.optimizer.lr = 8e-5
