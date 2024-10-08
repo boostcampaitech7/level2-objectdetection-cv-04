@@ -72,6 +72,8 @@ def create_submission(prediction_strings, file_names, output_dir):
         'PredictionString': prediction_strings,
         'image_id': file_names
     })
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
     submission.to_csv(os.path.join(output_dir, 'submission_det2.csv'), index=None)
 
 def main(args):

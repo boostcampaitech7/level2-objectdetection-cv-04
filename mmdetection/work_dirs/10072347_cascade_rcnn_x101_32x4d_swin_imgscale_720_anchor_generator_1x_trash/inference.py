@@ -16,7 +16,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN Inference")
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade_rcnn_x101_32x4d_fpn_1x_coco.py', help='config file path')
     parser.add_argument('--checkpoint', default='latest', help='checkpoint to use')
-    parser.add_argument('--work-dir', default='./work_dirs/10080926_cascade_rcnn_x101_32x4d_swin_imgscale_720_anchor_generator_1x_trash', help='the dir to save logs and models')
+    parser.add_argument('--work-dir', default='./work_dirs/10072347_cascade_rcnn_x101_32x4d_swin_imgscale_720_anchor_generator_1x_trash', help='the dir to save logs and models')
     parser.add_argument('--gpu-id', type=int, default=0, help='id of gpu to use')
     parser.add_argument('--root', default='../dataset/', help='root directory of dataset')
     return parser.parse_args()
@@ -56,11 +56,39 @@ def main():
     qk_scale=None,
     drop_rate=0.0,
     attn_drop_rate=0.0,
-    drop_path_rate=0.0, 
+    drop_path_rate=0.3, 
     ape=False,
     patch_norm=True,
     out_channels=[192, 256, 512, 1024],
     init_cfg=dict(type='Pretrained', checkpoint='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window7_224_22k.pth')),
+    
+    cfg.neck = dict(
+    type='RFP',
+    rfp_steps=7,  # Number of feedback steps (tuning this can enhance performance but increases computation)
+    aspp_out_channels=256,  # Set according to the feature pyramid needs
+    aspp_dilations=(1, 3, 6, 1),  # Dilation rates for ASPP if used
+    in_channels=[192, 256, 512, 1024],  # Based on Swin Transformer output stages
+    out_channels=256,  # Desired output channels for FPN
+    num_outs=5,  # Typically the number of levels in the FPN
+    rfp_backbone=dict(
+        type='SwinTransformer',
+    embed_dims=192,  
+    depths=[2, 2, 18, 2],  
+    num_heads=[4, 8, 16, 32],  # 헤드 수 조정
+    window_size=7,
+    mlp_ratio=4.,
+    out_indices=(0, 1, 2, 3),
+    qkv_bias=True,
+    qk_scale=None,
+    drop_rate=0.0,
+    attn_drop_rate=0.0,
+    drop_path_rate=0.3, 
+    ape=False,
+    patch_norm=True,
+    out_channels=[192, 256, 512, 1024],
+    init_cfg=dict(type='Pretrained', checkpoint='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window7_224_22k.pth')
+    )
+)
     # cfg.runner.max_epochs = 16
     ###
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
