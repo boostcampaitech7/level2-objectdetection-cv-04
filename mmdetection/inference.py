@@ -16,7 +16,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN Inference")
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade_rcnn_x101_32x4d_fpn_1x_coco.py', help='config file path')
     parser.add_argument('--checkpoint', default='latest', help='checkpoint to use')
-    parser.add_argument('--work-dir', default='./work_dirs/#15. 10091732_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_DIoULoss_1x_trash', help='the dir to save logs and models')
+    parser.add_argument('--work-dir', default='./work_dirs/#16. 10092152_cascade_rcnn_x101_32x4d_larger_swin_imgscale_720_PAFPN_loss_1x_trash', help='the dir to save logs and models')
     parser.add_argument('--gpu-id', type=int, default=0, help='id of gpu to use')
     parser.add_argument('--root', default='../dataset/', help='root directory of dataset')
     return parser.parse_args()
@@ -60,7 +60,7 @@ def main():
     ape=False,
     patch_norm=True,
     out_channels=[384, 768, 1536, 3072],
-    init_cfg=dict(type='Pretrained', checkpoint='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window7_224_22k.pth')),
+    init_cfg=dict(type='Pretrained', checkpoint='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22kto1k.pth')),
     cfg.neck=dict(
         type='PAFPN',
         in_channels=[384, 768, 1536, 3072],
