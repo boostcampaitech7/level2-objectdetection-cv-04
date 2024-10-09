@@ -6,8 +6,7 @@ from mmdet.apis import train_detector
 from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.utils import get_device
-import mmengine.optim.scheduler as scheduler
-# print(help(scheduler.CosineAnnealingLR))
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a atss_r50_fpn model")
     # Config 관련 argument
@@ -69,22 +68,14 @@ def main():
         in_channels=[384, 768, 1536, 3072],
         out_channels=256,
         num_outs=5)
-    cfg.lr_config = dict(
-    type='CosineAnnealingParamScheduler',  # 올바른 type으로 변경
-    T_max=8,                                 
-    begin=0,
-    end=2e-3,                             
-    warmup='linear',
-    warmup_iters=500,
-)
     # cfg.model.rpn_head.anchor_generator.ratios = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0]
     # cfg.model.rpn_head.loss_cls=dict(
     #         type='FocalLoss')
     # cfg.model.rpn_head.loss_cls=dict(
     #         type='LabelSmoothingCrossEntropyLoss', use_sigmoid=True, loss_weight=1.0, label_smoothing = 0.1)
     cfg.model.rpn_head.loss_bbox=dict(type='DIoULoss')
-    cfg.optimizer.lr = 2e-3
-    cfg.runner.max_epochs = 16
+    cfg.optimizer.lr = 2e-4
+    cfg.runner.max_epochs = 25
     ### 수정
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
     cfg.checkpoint_config = dict(max_keep_ckpts=3, interval=1)

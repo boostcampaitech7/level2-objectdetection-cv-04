@@ -6,13 +6,12 @@ from mmdet.apis import train_detector
 from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.utils import get_device
-import mmengine.optim.scheduler as scheduler
-# print(help(scheduler.CosineAnnealingLR))
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a atss_r50_fpn model")
     # Config 관련 argument
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade_rcnn_x101_32x4d_fpn_1x_coco.py', help='config file path')
-    parser.add_argument('--work-dir', default='./work_dirs/#15. 10091732_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_DIoULoss_1x_trash', help='the dir to save logs and models')
+    parser.add_argument('--work-dir', default='./work_dirs/#14. 10090816_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_GIoULoss_labelsmoothing_1x_trash', help='the dir to save logs and models')
     parser.add_argument('--seed', type=int, default=2022, help='random seed')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='ids of gpus to use')
     parser.add_argument('--samples-per-gpu', type=int, default=4, help='samples per gpu')
@@ -69,22 +68,14 @@ def main():
         in_channels=[384, 768, 1536, 3072],
         out_channels=256,
         num_outs=5)
-    cfg.lr_config = dict(
-    type='CosineAnnealingParamScheduler',  # 올바른 type으로 변경
-    T_max=8,                                 
-    begin=0,
-    end=2e-3,                             
-    warmup='linear',
-    warmup_iters=500,
-)
     # cfg.model.rpn_head.anchor_generator.ratios = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0]
     # cfg.model.rpn_head.loss_cls=dict(
     #         type='FocalLoss')
-    # cfg.model.rpn_head.loss_cls=dict(
-    #         type='LabelSmoothingCrossEntropyLoss', use_sigmoid=True, loss_weight=1.0, label_smoothing = 0.1)
+    cfg.model.rpn_head.loss_cls=dict(
+            type='LabelSmoothingCrossEntropyLoss', use_sigmoid=True, loss_weight=1.0, label_smoothing = 0.1)
     cfg.model.rpn_head.loss_bbox=dict(type='DIoULoss')
-    cfg.optimizer.lr = 2e-3
-    cfg.runner.max_epochs = 16
+    cfg.optimizer.lr = 2e-4
+    cfg.runner.max_epochs = 30
     ### 수정
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
     cfg.checkpoint_config = dict(max_keep_ckpts=3, interval=1)
@@ -100,5 +91,3 @@ def main():
     train_detector(model, datasets[0], cfg, distributed=False, validate=False)
 if __name__ == '__main__':
     main()
-    # import mmengine.optim.scheduler as scheduler
-    # print(dir(scheduler))

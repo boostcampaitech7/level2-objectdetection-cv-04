@@ -16,7 +16,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN Inference")
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade_rcnn_x101_32x4d_fpn_1x_coco.py', help='config file path')
     parser.add_argument('--checkpoint', default='latest', help='checkpoint to use')
-    parser.add_argument('--work-dir', default='./work_dirs/#15. 10091732_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_DIoULoss_1x_trash', help='the dir to save logs and models')
+    parser.add_argument('--work-dir', default='./work_dirs/#14. 10090816_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_GIoULoss_labelsmoothing_1x_trash', help='the dir to save logs and models')
     parser.add_argument('--gpu-id', type=int, default=0, help='id of gpu to use')
     parser.add_argument('--root', default='../dataset/', help='root directory of dataset')
     return parser.parse_args()
@@ -67,8 +67,8 @@ def main():
         out_channels=256,
         num_outs=5)
     # cfg.runner.max_epochs = 16
-    # cfg.model.rpn_head.loss_cls=dict(
-    #         type='LabelSmoothingCrossEntropyLoss', use_sigmoid=True, loss_weight=1.0, label_smoothing = 0.1)
+    cfg.model.rpn_head.loss_cls=dict(
+            type='LabelSmoothingCrossEntropyLoss', use_sigmoid=True, loss_weight=1.0, label_smoothing = 0.1)
     cfg.model.rpn_head.loss_bbox=dict(type='DIoULoss')
     ###
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
