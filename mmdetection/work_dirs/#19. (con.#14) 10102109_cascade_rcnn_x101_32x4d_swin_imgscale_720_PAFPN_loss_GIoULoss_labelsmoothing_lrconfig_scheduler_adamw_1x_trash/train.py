@@ -74,7 +74,7 @@ def main():
     #         type='FocalLoss')
     cfg.model.rpn_head.loss_cls=dict(
             type='LabelSmoothingCrossEntropyLoss', use_sigmoid=True, loss_weight=1.0, label_smoothing = 0.1)
-    cfg.model.rpn_head.loss_bbox=dict(type='GIoULoss')
+    cfg.model.rpn_head.loss_bbox=dict(type='DIoULoss')
     cfg.lr_config.step = [12, 16]
     cfg.lr_config.gamma = 0.1
     # cfg.optimizer.lr = 2e-2
