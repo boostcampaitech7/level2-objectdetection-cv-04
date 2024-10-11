@@ -11,7 +11,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Train a atss_r50_fpn model")
     # Config 관련 argument
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade_rcnn_x101_32x4d_fpn_1x_coco.py', help='config file path')
-    parser.add_argument('--work-dir', default='./work_dirs/#19. (con.#14) 10102109_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_GIoULoss_labelsmoothing_lrconfig_scheduler_adamw_1x_trash', help='the dir to save logs and models')
+    parser.add_argument('--work-dir', default='./work_dirs/#20. (con.#19) 10110904_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_GIoULoss_labelsmoothing_lrconfig_scheduler_adamw_1x_trash', help='the dir to save logs and models')
     parser.add_argument('--seed', type=int, default=2022, help='random seed')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='ids of gpus to use')
     parser.add_argument('--samples-per-gpu', type=int, default=4, help='samples per gpu')
@@ -38,7 +38,7 @@ def main():
     cfg.data.test.ann_file = root + 'test.json'
     cfg.data.test.pipeline[1]['img_scale'] = (720,720)
 
-    args.samples_per_gpu = 16
+    args.samples_per_gpu = 32
     cfg.data.samples_per_gpu = args.samples_per_gpu
     cfg.optimizer = dict(type='AdamW', lr=0.0001, weight_decay=0.0001)
     cfg.seed = args.seed
