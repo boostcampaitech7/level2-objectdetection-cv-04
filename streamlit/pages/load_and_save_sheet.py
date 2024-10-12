@@ -7,7 +7,7 @@ st.set_page_config(page_title="Load & Save Log", page_icon="🔍", layout="wide"
 
 # Google Sheets API 설정
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name('/your_file_path/level2-objectdetection-cv-04/nbc-7-project-2ee86f1b06b2.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('/data/ephemeral/home/data/nbc-7-project-2ee86f1b06b2.json', scope)
 client = gspread.authorize(creds)
 
 # 스프레드시트 열기 (URL 또는 스프레드시트 ID로 지정)
@@ -61,9 +61,10 @@ def main():
 
     if st.button('Add Row'):
         df = load_data()
-        df = df.append(new_row, ignore_index=True)
+        # df = df.append(new_row, ignore_index=True)
+        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
         write_data(df)
-        st.success("New row added successfully!")
+        st.success("새로운 행이 성공적으로 추가되었습니다!")
 
     # 데이터 수정
     st.subheader("Edit Data")

@@ -15,7 +15,7 @@ def load_data(file_path):
     return df
 
 # 파일 경로 설정
-file_path = 'your_file_path/level2-objectdetection-cv-04/metrics.json'
+file_path = '/data/ephemeral/home/data/metrics.json'
 df = load_data(file_path)
 
 # Streamlit 앱
