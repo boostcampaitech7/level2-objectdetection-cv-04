@@ -31,17 +31,17 @@ def main():
     cfg.data.train.classes = classes
     cfg.data.train.img_prefix = root
     cfg.data.train.ann_file = root + 'train.json'
-    cfg.data.train.pipeline[2]['img_scale'] = (512,512)
+    cfg.data.train.pipeline[2]['img_scale'] = (256,256)
 
     cfg.data.val.classes = classes
     cfg.data.val.img_prefix = root
     cfg.data.val.ann_file = root + 'val.json'
-    cfg.data.val.pipeline[1]['img_scale'] = (512,512)
+    cfg.data.val.pipeline[1]['img_scale'] = (256,256)
 
     cfg.data.test.classes = classes
     cfg.data.test.img_prefix = root
     cfg.data.test.ann_file = root + 'test.json'
-    cfg.data.test.pipeline[1]['img_scale'] = (512,512)
+    cfg.data.test.pipeline[1]['img_scale'] = (256,256)
 
     cfg.data.samples_per_gpu = args.samples_per_gpu
 
@@ -56,14 +56,15 @@ def main():
     cfg.device = get_device()
 
     # Build dataset
-    datasets = [build_dataset(cfg.data.train)]
+    train_dataset = build_dataset(cfg.data.train)
+    datasets = [train_dataset]
 
     # Build the detector
     model = build_detector(cfg.model)
     model.init_weights()
 
     # Train the model
-    train_detector(model, datasets[0], cfg, distributed=False, validate=False)
+    train_detector(model, datasets[0], cfg, distributed=False, validate=True)
 
 if __name__ == '__main__':
     main()
