@@ -33,6 +33,11 @@ def main():
     cfg.data.train.ann_file = root + 'train.json'
     cfg.data.train.pipeline[2]['img_scale'] = (512,512)
 
+    cfg.data.val.classes = classes
+    cfg.data.val.img_prefix = root
+    cfg.data.val.ann_file = root + 'val.json'
+    cfg.data.val.pipeline[1]['img_scale'] = (512,512)
+
     cfg.data.test.classes = classes
     cfg.data.test.img_prefix = root
     cfg.data.test.ann_file = root + 'test.json'
