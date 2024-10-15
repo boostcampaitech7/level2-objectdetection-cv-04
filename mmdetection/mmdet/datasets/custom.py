@@ -67,7 +67,8 @@ class CustomDataset(Dataset):
                  proposal_file=None,
                  test_mode=False,
                  filter_empty_gt=True,
-                 file_client_args=dict(backend='disk')):
+                 file_client_args=dict(backend='disk'),
+                 val_mode=False):
         self.ann_file = ann_file
         self.data_root = data_root
         self.img_prefix = img_prefix
@@ -78,6 +79,7 @@ class CustomDataset(Dataset):
         self.filter_empty_gt = filter_empty_gt
         self.file_client = mmcv.FileClient(**file_client_args)
         self.CLASSES = self.get_classes(classes)
+        self.val_mode = val_mode
 
         # join paths if data_root is specified
         if self.data_root is not None:
@@ -213,7 +215,8 @@ class CustomDataset(Dataset):
             dict: Training/test data (with annotation if `test_mode` is set \
                 True).
         """
-
+        if self.val_mode:
+            return self.prepare_val_img(idx)
         if self.test_mode:
             return self.prepare_test_img(idx)
         while True:
@@ -242,6 +245,25 @@ class CustomDataset(Dataset):
         self.pre_pipeline(results)
         return self.pipeline(results)
 
+    def prepare_val_img(self, idx):
+        """Get validating data after pipeline. This version is based on prepare_test_img, added ann_info
+
+        Args:
+            idx (int): Index of data.
+
+        Returns:
+            dict: Testing data after pipeline with new keys introduced by \
+                pipeline.
+        """
+
+        img_info = self.data_infos[idx]
+        ann_info = self.get_ann_info(idx)
+        results = dict(img_info=img_info, ann_info = ann_info)
+        if self.proposals is not None:
+            results['proposals'] = self.proposals[idx]
+        self.pre_pipeline(results)
+        return self.pipeline(results)
+    
     def prepare_test_img(self, idx):
         """Get testing data after pipeline.
 

@@ -64,7 +64,7 @@ val_annotations = {
 
 # Function to format image ID
 def format_image_id(image_id):
-    return f"test/{int(image_id):04d}.jpg"  # Format to 4 digits with leading zeros
+    return f"{int(image_id):04d}.jpg"  # Format to 4 digits with leading zeros
 
 # Fill in the train and validation data
 for idx in train_idx:
