@@ -32,7 +32,6 @@ detectron2는 최신 버전까지, mmdetection은 2.x 버전까지 지원하므�
    apt-get install -y libgl1-mesa-glx
    apt-get install -y libglib2.0-0
    apt install wget
-   python -m pip install --upgrade pip
    pip install ninja
    ```
    
