@@ -27,7 +27,7 @@ detectron2는 최신 버전까지, mmdetection은 2.x 버전까지 지원하므�
 0. setup
    ```
    apt update
-   apt upgrade
+   apt upgrade -y
    apt-get update -y
    apt-get install -y libgl1-mesa-glx
    apt-get install -y libglib2.0-0
