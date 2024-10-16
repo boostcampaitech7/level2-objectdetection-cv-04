@@ -34,6 +34,13 @@ def main():
 
     cfg = Config.fromfile(args.config)
 
+    wandb.init(project = config_name, config={
+        "lr": cfg.optimizer['lr'],
+        "batch_size": cfg.data.samples_per_gpu,
+        "num_epochs": cfg.runner.max_epochs,
+        "backbone": cfg.model.backbone['type'],
+        "depth": cfg.model.backbone['depth']})
+
     root = 'dataset'
 
     img_size = 512
@@ -55,7 +62,11 @@ def main():
     cfg.gpu_ids = args.gpu_ids
     cfg.work_dir = args.work_dir
 
-    cfg.model.roi_head.bbox_head.num_classes = 10
+    # 2stage 모델에서 사용
+    # cfg.model.roi_head.bbox_head.num_classes = 10
+    
+    # 1stage 모델에서 사용
+    cfg.model.bbox_head.num_classes = 10
 
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
     cfg.checkpoint_config = dict(max_keep_ckpts=3, interval=1)
@@ -70,6 +81,26 @@ def main():
 
     # Train the model
     train_detector(model, datasets[0], cfg, distributed=False, validate=False)
+
+    #Wandb log 기록
+    for epoch in range(cfg.runner.max_epochs):
+        train_detector(model, datasets[0], cfg, distributed=False, validate=False)
+        
+        # Assuming the loss_cls and loss_bbox are calculated during training
+        loss_cls = model.module.bbox_head.loss_cls.item() if hasattr(model.module.bbox_head, 'loss_cls') else 0
+        loss_bbox = model.module.bbox_head.loss_bbox.item() if hasattr(model.module.bbox_head, 'loss_bbox') else 0
+        total_loss = loss_cls + loss_bbox  
+        lr = cfg.optimizer.param_groups[0]['lr']
+
+        # Log metrics to WandB
+        wandb.log({
+            "epoch": epoch,
+            "loss_cls": loss_cls,
+            "loss_bbox": loss_bbox,
+            "total_loss": total_loss,
+            "lr": lr
+        })
+    wandb.save('model.pth')
 
 if __name__ == '__main__':
     main()
