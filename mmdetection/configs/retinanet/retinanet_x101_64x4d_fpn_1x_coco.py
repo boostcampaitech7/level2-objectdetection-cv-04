@@ -26,11 +26,11 @@ log_config = dict(
                 project='retinanet_x101_project',
                 entity='your_wandb_username',  # Replace with your WandB username
                 config=dict(
-                    lr=0.01,  # or cfg.optimizer['lr'] if available
-                    batch_size=2,  # or cfg.data.samples_per_gpu if available
-                    num_epochs=12,  # or cfg.runner.max_epochs if available
-                    backbone='ResNeXt',
-                    depth=101
+                    lr = cfg.optimizer['lr'],  # or cfg.optimizer['lr'] if available
+                    batch_size = cfg.data.samples_per_gpu,  # or cfg.data.samples_per_gpu if available
+                    num_epochs = cfg.runner.max_epochs,  # or cfg.runner.max_epochs if available
+                    backbone ='ResNeXt',
+                    depth = 101
                 )
             )
         )
