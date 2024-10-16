@@ -36,3 +36,15 @@ log_config = dict(
         )
     ]
 )
+
+evaluation = dict(
+    interval=1,  # Frequency of evaluation (e.g., every epoch)
+    metric=['bbox'],  # Metrics to evaluate, e.g., 'bbox' for object detection
+    save_best='bbox_mAP'  # Save the checkpoint with the best mAP
+)
+
+custom_hooks = [
+    dict(
+        type='WandBPrecisionRecallHook',
+    )
+]
