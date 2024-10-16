@@ -213,7 +213,7 @@ class CustomDataset(Dataset):
             dict: Training/test data (with annotation if `test_mode` is set \
                 True).
         """
-        
+
         if self.test_mode:
             return self.prepare_test_img(idx)
         while True:
@@ -241,7 +241,7 @@ class CustomDataset(Dataset):
             results['proposals'] = self.proposals[idx]
         self.pre_pipeline(results)
         return self.pipeline(results)
-    
+
     def prepare_test_img(self, idx):
         """Get testing data after pipeline.
 

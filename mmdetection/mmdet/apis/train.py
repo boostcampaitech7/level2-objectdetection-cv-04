@@ -165,7 +165,7 @@ def train_detector(model,
     # build optimizer
     auto_scale_lr(cfg, distributed, logger)
     optimizer = build_optimizer(model, cfg.optimizer)
-    
+
     runner = build_runner(
         cfg.runner,
         default_args=dict(
@@ -196,7 +196,7 @@ def train_detector(model,
         cfg.log_config,
         cfg.get('momentum_config', None),
         custom_hooks_config=cfg.get('custom_hooks', None))
-    
+
     if distributed:
         if isinstance(runner, EpochBasedRunner):
             runner.register_hook(DistSamplerSeedHook())
