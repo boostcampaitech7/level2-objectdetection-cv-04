@@ -35,13 +35,6 @@ def main():
 
     cfg = Config.fromfile(args.config)
 
-    wandb.init(project = config_name, config={
-        "lr": cfg.optimizer['lr'],
-        "batch_size": cfg.data.samples_per_gpu,
-        "num_epochs": cfg.runner.max_epochs,
-        "backbone": cfg.model.backbone['type'],
-        "depth": cfg.model.backbone['depth']})
-
     root = '/data/ephemeral/home/dataset/'
 
     img_size = 512
@@ -82,26 +75,6 @@ def main():
 
     # Train the model
     train_detector(model, datasets[0], cfg, distributed=False, validate=False)
-    #Wandb log 기록
-    for epoch in range(cfg.runner.max_epochs):
-        # Train for one epoch and capture outputs
-        ouputs = train_detector(model, datasets[0], cfg, distributed=False, validate=False)
-        
-        # Extract losses from the outputs
-        loss_cls = outputs.get('loss_cls', 0)
-        loss_bbox = outputs.get('loss_bbox', 0)
-        total_loss = loss_cls + loss_bbox  
-        lr = cfg.optimizer.param_groups[0]['lr']
-
-        # Log metrics to WandB
-        wandb.log({
-            "epoch": epoch,
-            "loss_cls": loss_cls,
-            "loss_bbox": loss_bbox,
-            "total_loss": total_loss,
-            "lr": lr
-        })
-    wandb.save('model.pth')
 
 if __name__ == '__main__':
     main()
