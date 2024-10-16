@@ -24,11 +24,11 @@ log_config = dict(
             type='WandbLoggerHook',
             init_kwargs=dict(
                 project='retinanet_x101_project',
-                entity='your_wandb_username',  # Replace with your WandB username
+                entity='jongseo001111-naver',  # Replace with your WandB username
                 config=dict(
-                    lr = cfg.optimizer['lr'],  # or cfg.optimizer['lr'] if available
-                    batch_size = cfg.data.samples_per_gpu,  # or cfg.data.samples_per_gpu if available
-                    num_epochs = cfg.runner.max_epochs,  # or cfg.runner.max_epochs if available
+                    lr = 0.01, 
+                    batch_size = 4,  
+                    num_epochs = 12,  
                     backbone ='ResNeXt',
                     depth = 101
                 )

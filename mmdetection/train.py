@@ -1,5 +1,4 @@
 import argparse
-import wandb
 import os
 from mmcv import Config
 from mmdet.datasets import build_dataset
