@@ -1,6 +1,7 @@
-from mmcv.runner import Hook
+from mmcv.runner import HOOKS, Hook
 import wandb
 
+@HOOKS.register_module()
 class WandBPrecisionRecallHook(Hook):
     def after_val_epoch(self, runner):
         # Assuming validation results are accessible
