@@ -32,11 +32,13 @@ def main():
 
     cfg = Config.fromfile(args.config)
 
+    img_size = 256
+
     # Modify dataset config
     cfg.data.test.classes = classes
     cfg.data.test.img_prefix = args.root
     cfg.data.test.ann_file = os.path.join(args.root, 'test.json')
-    cfg.data.test.pipeline[1]['img_scale'] = (512,512)
+    cfg.data.test.pipeline[1]['img_scale'] = (img_size,img_size)
     cfg.data.test.test_mode = True
 
     cfg.data.samples_per_gpu = 4

@@ -48,3 +48,5 @@ custom_hooks = [
         type='WandBPrecisionRecallHook',
     )
 ]
+
+val_dataloader = dict(samples_per_gpu=1, workers_per_gpu=2, shuffle=False)

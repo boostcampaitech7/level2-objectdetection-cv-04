@@ -6,7 +6,9 @@ class WandBPrecisionRecallHook(Hook):
     def after_val_epoch(self, runner):
         # Assuming validation results are accessible
         predictions = runner.outputs['preds']
+        print("outpurs preds:", runner.ouputs['preds'])
         ground_truth = runner.outputs['gt']
+        print("outputs ground truth:", runner.outputs['gt'])
 
         # Log precision-recall curve
         pr_curve = wandb.plot.pr_curve(
