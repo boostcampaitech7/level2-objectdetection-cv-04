@@ -3,10 +3,11 @@ import wandb
 
 @HOOKS.register_module()
 class WandBPrecisionRecallHook(Hook):
-    def after_val_epoch(self, runner):
+    def after_train_epoch(self, runner):
         # Assuming validation results are accessible
+        print("runner latest results:", runner.log_buffer.output)
         predictions = runner.outputs['preds']
-        print("outpurs preds:", runner.ouputs['preds'])
+        print("outpurs preds:", runner.outputs['preds'])
         ground_truth = runner.outputs['gt']
         print("outputs ground truth:", runner.outputs['gt'])
 

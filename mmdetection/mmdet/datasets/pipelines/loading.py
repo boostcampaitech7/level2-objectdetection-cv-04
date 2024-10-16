@@ -272,6 +272,7 @@ class LoadAnnotations:
         if gt_is_group_ofs is not None:
             results['gt_is_group_ofs'] = gt_is_group_ofs.copy()
 
+
         return results
 
     def _load_labels(self, results):
@@ -285,6 +286,7 @@ class LoadAnnotations:
         """
 
         results['gt_labels'] = results['ann_info']['labels'].copy()
+        
         return results
 
     def _poly2mask(self, mask_ann, img_h, img_w):

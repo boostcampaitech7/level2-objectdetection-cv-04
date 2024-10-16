@@ -62,13 +62,21 @@ def main():
     # Load config
     cfg = Config.fromfile(args.config)
 
+    #CustomHook 추가
+    cfg.custom_hooks = [
+        dict(
+            type = 'WandBPrecisionRecallHook',
+            priority = 'VERY_LOW'
+        )
+    ]
+
     # Set workflow to train only
     cfg.workflow = [('train', 1)]
 
     # Dataset root path
     root = '/data/ephemeral/home/dataset/'
 
-    img_size = 16
+    img_size = 4
 
     # Modify dataset config
     cfg.data.train.classes = classes
@@ -102,15 +110,7 @@ def main():
     model.init_weights()
 
     # Train the model
-    train_detector(model, train_dataset, cfg, distributed=False, validate=False)
-
-    # Load the checkpoint after training
-    load_checkpoint(model, cfg.work_dir + '/latest.pth', map_location='cpu')
-
-    # Validate the model after training
-    val_dataset = build_dataset(cfg.data.val)
-    val_dataloader = build_dataloader(val_dataset, samples_per_gpu=1, workers_per_gpu=2, shuffle=False)
-    results = single_gpu_test(model, val_dataloader, show=False)
+    train_detector(model, train_dataset, cfg, distributed=False, validate=True)
 
 if __name__ == '__main__':
     main()
