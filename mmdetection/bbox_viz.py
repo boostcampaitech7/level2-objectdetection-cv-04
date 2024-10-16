@@ -5,7 +5,7 @@ from PIL import Image
 import matplotlib.patches as patches
 
 # 데이터를 Pandas로 읽어오기
-data = './work_dirs/#14. 10090816_cascade_rcnn_x101_32x4d_swin_imgscale_720_PAFPN_loss_GIoULoss_labelsmoothing_1x_trash/#14. submission_latest.csv'
+data = '/data/ephemeral/home/level2-objectdetection-cv-04/workdir_retinanet/retinanet_x_101_64x4d_fpn.csv'
 
 # DataFrame 생성
 df = pd.read_csv(data)
@@ -30,6 +30,8 @@ color_map = {
     "Battery": 'brown',
     "Clothing": 'pink',
 }
+
+config_name = "retinanet_x_101_64x4d_fpn"
 
 # Bounding box 시각화 함수
 def visualize_and_save_bbox(row):
@@ -72,12 +74,12 @@ def visualize_and_save_bbox(row):
     axes[1].axis('off')  # 축 제거
 
     # 이미지 저장 (저장 경로는 원하는 경로로 수정)
-    output_path = os.path.join('output_more_epoch#14', os.path.basename(img_path))
+    output_path = os.path.join(config_name, os.path.basename(img_path))
     plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
     plt.close()
 
 # 이미지가 저장될 output 디렉토리 생성
-os.makedirs('output_more_epoch#14', exist_ok=True)
+os.makedirs(config_name, exist_ok=True)
 
 # 모든 행에 대해 시각화 및 저장
 for _, row in df.iterrows():

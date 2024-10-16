@@ -1,5 +1,6 @@
 import argparse
 import wandb
+import os
 from mmcv import Config
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
@@ -41,7 +42,7 @@ def main():
         "backbone": cfg.model.backbone['type'],
         "depth": cfg.model.backbone['depth']})
 
-    root = 'dataset'
+    root = '/data/ephemeral/home/dataset/'
 
     img_size = 512
 
@@ -81,14 +82,14 @@ def main():
 
     # Train the model
     train_detector(model, datasets[0], cfg, distributed=False, validate=False)
-
     #Wandb log 기록
     for epoch in range(cfg.runner.max_epochs):
-        train_detector(model, datasets[0], cfg, distributed=False, validate=False)
+        # Train for one epoch and capture outputs
+        ouputs = train_detector(model, datasets[0], cfg, distributed=False, validate=False)
         
-        # Assuming the loss_cls and loss_bbox are calculated during training
-        loss_cls = model.module.bbox_head.loss_cls.item() if hasattr(model.module.bbox_head, 'loss_cls') else 0
-        loss_bbox = model.module.bbox_head.loss_bbox.item() if hasattr(model.module.bbox_head, 'loss_bbox') else 0
+        # Extract losses from the outputs
+        loss_cls = outputs.get('loss_cls', 0)
+        loss_bbox = outputs.get('loss_bbox', 0)
         total_loss = loss_cls + loss_bbox  
         lr = cfg.optimizer.param_groups[0]['lr']
 
