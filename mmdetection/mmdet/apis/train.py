@@ -14,7 +14,6 @@ from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.utils import (build_ddp, build_dp, compat_cfg,
                          find_latest_checkpoint, get_root_logger)
-
 def init_random_seed(seed=None, device='cuda'):
     """Initialize random seed.
 
@@ -164,7 +163,6 @@ def train_detector(model,
     # build optimizer
     auto_scale_lr(cfg, distributed, logger)
     optimizer = build_optimizer(model, cfg.optimizer)
-    
     runner = build_runner(
         cfg.runner,
         default_args=dict(
@@ -195,7 +193,6 @@ def train_detector(model,
         cfg.log_config,
         cfg.get('momentum_config', None),
         custom_hooks_config=cfg.get('custom_hooks', None))
-    
     if distributed:
         if isinstance(runner, EpochBasedRunner):
             runner.register_hook(DistSamplerSeedHook())
