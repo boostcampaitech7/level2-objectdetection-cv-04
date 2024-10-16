@@ -7,6 +7,8 @@ from mmdet.apis import train_detector
 from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.utils import get_device
+from wandb_hooks import WandBPrecisionRecallHook
+
 
 
 #파일 경로 지정

@@ -12,13 +12,16 @@ import pandas as pd
 from pycocotools.coco import COCO
 import numpy as np
 
+config_name = 'retinanet_x101_64x4d_fpn_1x_coco.py'
+workdir_name = 'workdir_' + config_name
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN Inference")
-    parser.add_argument('--config', default='./configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py', help='config file path')
+    parser.add_argument('--config', default='/data/ephemeral/home/level2-objectdetection-cv-04/mmdetection/configs/retinanet/' + config_name, help='config file path')
     parser.add_argument('--checkpoint', default='latest', help='checkpoint to use')
-    parser.add_argument('--work-dir', default='./work_dirs/faster_rcnn_r50_fpn_1x_trash', help='the dir to save logs and models')
+    parser.add_argument('--work-dir', default='/data/ephemeral/home/level2-objectdetection-cv-04/mmdetection/' + workdir_name, help='the dir to save logs and models')
     parser.add_argument('--gpu-id', type=int, default=0, help='id of gpu to use')
-    parser.add_argument('--root', default='../dataset/', help='root directory of dataset')
+    parser.add_argument('--root', default='/data/ephemeral/home/dataset/', help='root directory of dataset')
     return parser.parse_args()
 
 def main():
@@ -41,7 +44,11 @@ def main():
     cfg.gpu_ids = [args.gpu_id]
     cfg.work_dir = args.work_dir
 
-    cfg.model.roi_head.bbox_head.num_classes = 10
+    # 2stage 모델에서 사용
+    # cfg.model.roi_head.bbox_head.num_classes = 10
+    
+    # 1stage 모델에서 사용
+    cfg.model.bbox_head.num_classes = 10
 
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
     cfg.model.train_cfg = None
