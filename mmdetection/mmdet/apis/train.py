@@ -1,7 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import os
 import random
-import logging
+
 import numpy as np
 import torch
 import torch.distributed as dist
@@ -14,74 +14,6 @@ from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.utils import (build_ddp, build_dp, compat_cfg,
                          find_latest_checkpoint, get_root_logger)
-import shutil
-# from mmcv.runner import CheckpointHook
-
-# class CustomCheckpointHook(CheckpointHook):
-#     def __init__(self, *args, save_last_epoch=True, checkpoint_type='mAP', max_checkpoints=3, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.save_last_epoch = save_last_epoch
-#         self.checkpoint_type = checkpoint_type  # 'loss' 또는 'mAP'
-#         self.max_checkpoints = max_checkpoints
-#         self.checkpoints = []  # 저장할 체크포인트 리스트 초기화
-#         self.best_score = None  # 초기화
-
-#     def after_train_epoch(self):
-#         # validation 후 mAP 및 loss 계산
-#         results = self.runner.log_buffer.output
-#         print(results)
-#         current_loss = results.get('val_loss', None)
-#         current_mAP = results.get('mAP', None)
-
-#         # 가장 낮은 loss 또는 가장 높은 mAP 기준으로 저장
-#         if self.checkpoint_type == 'loss' and current_loss is not None:
-#             if self.best_score is None or current_loss < self.best_score:
-#                 self.best_score = current_loss
-#                 checkpoint_filename = f'epoch{self.runner.epoch}_loss_{current_loss}.pth'
-#                 self._save_checkpoint(self.runner, checkpoint_filename)
-#                 self.checkpoints.append(checkpoint_filename)
-
-#         if current_mAP is not None:
-#             if self.best_score is None or current_mAP > self.best_score:
-#                 self.best_score = current_mAP
-#                 checkpoint_filename = f'epoch{self.runner.epoch}_mAP_{current_mAP}.pth'
-#                 self._save_checkpoint(self.runner, checkpoint_filename)
-#                 self.checkpoints.append(checkpoint_filename)
-
-#         # 체크포인트 목록 관리
-#         self._manage_checkpoints()
-
-#         # 마지막 에폭 모델 저장
-#         if self.save_last_epoch:
-#             self._save_checkpoint(self.runner, 'last_epoch.pth')
-
-#         # 원래 체크포인트 로직 호출
-#         super().after_train_epoch()
-
-#     def _manage_checkpoints(self):
-#         """최대 체크포인트 수를 관리하고, 성능이 가장 낮은 체크포인트를 삭제합니다."""
-#         if len(self.checkpoints) > self.max_checkpoints:
-#             # 체크포인트의 손실 또는 mAP에 따라 삭제할 체크포인트를 찾음
-#             if self.checkpoint_type == 'loss':
-#                 # 가장 높은 loss 값을 가진 체크포인트 삭제
-#                 worst_checkpoint = min(self.checkpoints, key=lambda x: float(x.split('_')[2]))
-#             else:
-#                 # 가장 낮은 mAP 값을 가진 체크포인트 삭제
-#                 worst_checkpoint = min(self.checkpoints, key=lambda x: float(x.split('_')[2]))
-
-#             # 체크포인트 파일 삭제
-#             if os.path.exists(worst_checkpoint):
-#                 os.remove(worst_checkpoint)
-#             self.checkpoints.remove(worst_checkpoint)
-
-#         # 베스트 체크포인트 복사
-#         if self.checkpoint_type == 'loss' and self.best_score is not None:
-#             best_checkpoint = min(self.checkpoints, key=lambda x: float(x.split('_')[2]))
-#             shutil.copy(best_checkpoint, 'best_loss.pth')
-#         elif self.checkpoint_type == 'mAP' and self.best_score is not None:
-#             best_checkpoint = max(self.checkpoints, key=lambda x: float(x.split('_')[2]))
-#             shutil.copy(best_checkpoint, 'best_mAP.pth')
-
 
 def init_random_seed(seed=None, device='cuda'):
     """Initialize random seed.
@@ -232,6 +164,7 @@ def train_detector(model,
     # build optimizer
     auto_scale_lr(cfg, distributed, logger)
     optimizer = build_optimizer(model, cfg.optimizer)
+    
     runner = build_runner(
         cfg.runner,
         default_args=dict(
