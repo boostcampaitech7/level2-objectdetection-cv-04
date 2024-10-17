@@ -125,3 +125,25 @@ runner = dict(max_epochs=28)  # the real epoch is 28*5=140
 # USER SHOULD NOT CHANGE ITS VALUES.
 # base_batch_size = (8 GPUs) x (16 samples per GPU)
 auto_scale_lr = dict(base_batch_size=128)
+
+###
+log_config = dict(
+    interval=50,
+    hooks=[
+        dict(type='TextLoggerHook'),
+        dict(
+            type='WandbLoggerHook',
+            init_kwargs=dict(
+                project='centernet_mmdetectionV2', # Set Project name 
+                entity='jongseo001111-naver', 
+                config=dict(
+                    lr = auto_scale_lr,#  0.01,
+                    batch_size =128 ,
+                    num_epochs =140,#140,##base_batch_size,#28*5,#140 = workers_per_gpu * sampe
+                    backbone ='ResNet', 
+                    depth = 18
+                )
+            )
+        )       
+    ]
+)

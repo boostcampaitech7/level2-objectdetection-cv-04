@@ -28,12 +28,17 @@ def main():
                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
     cfg = Config.fromfile(args.config)
-
+    
+    cfg.data_root = args.root#add
+    
+    
     # Modify dataset config
+    cfg.model.bbox_head.num_classes = len(classes)
     cfg.data.test.classes = classes
     cfg.data.test.img_prefix = args.root
     cfg.data.test.ann_file = os.path.join(args.root, 'test.json')
-    cfg.data.test.pipeline[1]['img_scale'] = (512,512)
+ 
+    # cfg.data.test.pipeline[1]['img_scale'] = (512,512)
     cfg.data.test.test_mode = True
 
     cfg.data.samples_per_gpu = 4
@@ -41,7 +46,7 @@ def main():
     cfg.gpu_ids = [args.gpu_id]
     cfg.work_dir = args.work_dir
 
-    cfg.model.roi_head.bbox_head.num_classes = 10
+    # cfg.model.roi_head.bbox_head.num_classes = 10
 
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
     cfg.model.train_cfg = None

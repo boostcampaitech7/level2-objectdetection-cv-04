@@ -1,0 +1,1 @@
+{"_wandb":{"runtime":6751},"train/loss_center_heatmap":4.314032869338989,"_timestamp":1.7290717135213373e+09,"train/loss_wh":3.095274848937988,"train/grad_norm":0.7750089532136917,"_runtime":6748.790999288,"train/loss_offset":0.2815417891740799,"momentum":0.9,"learning_rate":0.02,"_step":85002,"train/loss":7.690849514007568}
