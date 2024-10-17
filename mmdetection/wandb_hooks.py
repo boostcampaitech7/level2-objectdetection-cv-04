@@ -1,91 +1,96 @@
-from mmcv.runner import HOOKS, Hook, EvalHook
+from mmcv.runner import HOOKS
+from mmcv.runner.hooks import WandbLoggerHook
 import wandb
 import numpy as np
-from mmdet.apis import single_gpu_test
-
+from sklearn.metrics import precision_recall_curve
+ 
 @HOOKS.register_module()
-class CustomEvalHook(EvalHook):
-    def _do_evaluate(self, runner):
-        """Perform evaluation and save the results in runner.outputs."""
-        if not self._should_evaluate(runner):
-            return
+class CustomWandbLoggerHook(WandbLoggerHook):
+    def __init__(self, *args, **kwargs):
+        super(CustomWandbLoggerHook, self).__init__(*args, **kwargs)
+        self.predictions = []
+        self.ground_truths = []
 
-        # Run the single GPU test
-        results = single_gpu_test(runner.model, self.dataloader, show=False)
+    def after_val_iter(self, runner):
+        # Assuming runner.outputs contains bbox predictions in the format [x1, y1, x2, y2, score]
+        if 'bbox_results' in runner.outputs and 'gt_bboxes' in runner.data_batch:
+            bbox_results = runner.outputs['bbox_results']
+            gt_bboxes = runner.data_batch['gt_bboxes']
 
-        # Store the results in runner.outputs to make them available for hooks
-        runner.outputs['results'] = results
+            # Collect predictions and ground truth for later processing
+            self.predictions.extend(bbox_results)
+            self.ground_truths.extend(gt_bboxes)
 
-        # Proceed with the rest of the evaluation
-        key_score = self.evaluate(runner, results)
-        if self.save_best and key_score:
-            self._save_ckpt(runner, key_score)
+    def after_val_epoch(self, runner):
+        # Call the original WandbLoggerHook after_val_epoch to log default metrics
+        super().after_val_epoch(runner)
 
+        # Compute and log the PR curve
+        if self.predictions and self.ground_truths:
+            precision, recall = self.compute_precision_recall(self.predictions, self.ground_truths)
 
-@HOOKS.register_module()
-class WandBPrecisionRecallHook(Hook):
-    def after_train_epoch(self, runner):
-        # Get dataset from the runner's data loader
-        dataset = runner.data_loader.dataset
+            if len(precision) > 0 and len(recall) > 0:
+                # Use W&B to log the PR curve
+                wandb.log({"PR Curve": wandb.plot.line_series(
+                    xs=[r for r in recall],
+                    ys=[p for p in precision],
+                    keys=["Precision"],
+                    title="Precision-Recall Curve",
+                    xname="Recall"
+                )})
 
-        # Get validation results from runner's outputs
-        results = runner.outputs.get('results', None)
+    def compute_precision_recall(self, predictions, ground_truths, iou_threshold=0.5):
+        # Initialize true positives (TP), false positives (FP), and false negatives (FN)
+        tp, fp, fn = 0, 0, 0
 
-        # If results are not available, skip this hook
-        if results is None:
-            print("No validation results found, skipping PR curve drawing.")
-            return
+        # Flatten the lists of predictions and ground truths
+        for img_preds, img_gts in zip(predictions, ground_truths):
+            matched_gt = set()
+            for pred in img_preds:
+                iou_max = 0
+                best_gt_idx = -1
 
-        ground_truth_labels = []
-        prediction_scores = []
+                # Compute IoU between prediction and each ground truth box
+                for idx, gt in enumerate(img_gts):
+                    iou = self.compute_iou(pred[:4], gt)
+                    if iou > iou_max:
+                        iou_max = iou
+                        best_gt_idx = idx
 
-        # Extract ground truth labels and prediction scores
-        for idx, (img_info, pred) in enumerate(zip(dataset.data_infos, results)):
-            if pred is None or len(pred) == 0:
-                print(f"Unexpected bbox format with length 0 for image index {idx}: {pred}")
-                continue
+                if iou_max >= iou_threshold and best_gt_idx not in matched_gt:
+                    tp += 1
+                    matched_gt.add(best_gt_idx)
+                else:
+                    fp += 1
 
-            ann = dataset.get_ann_info(idx)
-            gt_labels = ann.get('labels', [])
+            # Count false negatives for unmatched ground truths
+            fn += len(img_gts) - len(matched_gt)
 
-            if len(gt_labels) == 0:
-                print(f"No ground truth labels for image index {idx}.")
-                continue
+        # Calculate precision and recall
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
 
-            # Append ground truth labels
-            for label in gt_labels:
-                ground_truth_labels.append(label)
+        return [precision], [recall]
 
-            # Append predicted scores for the bounding boxes
-            for bbox in pred:
-                if len(bbox) >= 5:  # Ensure bbox has at least 5 elements: [x1, y1, x2, y2, score]
-                    score = bbox[4]  # The 5th value is the score
-                    prediction_scores.append(score)
-                else:  # Log a warning if the bbox size isn't as expected
-                    print(f"Unexpected bbox format with length {len(bbox)}: {bbox}")
+    def compute_iou(self, box1, box2):
+        # Compute the intersection over union (IoU) of two bounding boxes
+        x1, y1, x2, y2 = box1
+        x1_gt, y1_gt, x2_gt, y2_gt = box2
 
-        # Ensure that ground truth labels and prediction scores have some valid data to log
-        if len(ground_truth_labels) == 0 or len(prediction_scores) == 0:
-            print("No valid data available for drawing PR curve.")
-            return
+        # Determine the coordinates of the intersection rectangle
+        xi1 = max(x1, x1_gt)
+        yi1 = max(y1, y1_gt)
+        xi2 = min(x2, x2_gt)
+        yi2 = min(y2, y2_gt)
 
-        # Log precision-recall curve to WandB
-        try:
-            print("Attempting to draw PR curve in WandB...")
-            # If ground truth and predictions lengths don't match, use the minimum length
-            min_length = min(len(ground_truth_labels), len(prediction_scores))
-            filtered_ground_truth = ground_truth_labels[:min_length]
-            filtered_scores = prediction_scores[:min_length]
+        inter_area = max(0, xi2 - xi1) * max(0, yi2 - yi1)
 
-            data = [[filtered_ground_truth[i], filtered_scores[i]] for i in range(min_length)]
-            print(data)
-            table = wandb.Table(data=data, columns=["ground_truth", "score"])
-            pr_curve = wandb.plot.pr_curve(
-                table,
-                "ground_truth",
-                "score"
-            )
-            wandb.log({"precision_recall_curve": pr_curve})
-            print("PR curve drawn successfully.")
-        except Exception as e:
-            print("Error drawing PR curve:", str(e))
+        # Compute the area of both the prediction and ground-truth rectangles
+        box1_area = (x2 - x1) * (y2 - y1)
+        box2_area = (x2_gt - x1_gt) * (y2_gt - y1_gt)
+
+        # Compute the IoU
+        union_area = box1_area + box2_area - inter_area
+        iou = inter_area / union_area if union_area > 0 else 0
+
+        return iou

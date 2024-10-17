@@ -5,6 +5,7 @@ import numpy as np
 import json
 import os
 from PIL import Image
+from utils import get_json_path
 
 st.set_page_config(page_title="data argm tester", page_icon="🔍")
 st.title('데이터 증강 테스터')
@@ -29,8 +30,7 @@ def apply_augmentation(image, bboxes, augmentation):
 def main():
     dataset_folder = st.selectbox("데이터셋을 선택하세요:", ["train", "test"])
     
-    #json_path = f"/data/ephemeral/home/deamin/dataset/{dataset_folder}.json"
-    json_path = f"/data/ephemeral/home/data/{dataset_folder}.json"
+    json_path = get_json_path(dataset_folder)
     annotations = load_annotations(json_path)
     
     image_list = [img['file_name'] for img in annotations['images']]

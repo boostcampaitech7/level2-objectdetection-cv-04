@@ -6,8 +6,8 @@ from mmdet.models import build_detector
 from mmdet.apis import train_detector, single_gpu_test
 from mmdet.utils import get_device
 from mmcv.runner import load_checkpoint
-from wandb_hooks import CustomEvalHook, WandBPrecisionRecallHook
-
+from wandb_hooks import CustomWandbLoggerHook
+import wandb
 
 # File paths
 config_name = 'retinanet_x101_64x4d_fpn_1x_coco.py'
@@ -66,6 +66,9 @@ def main():
     cfg.checkpoint_config = dict(max_keep_ckpts=3, interval=1)
     cfg.device = get_device()
 
+    # Initialize WandB
+    wandb.init(project='object-detection', config=cfg, sync_tensorboard=True)
+
     # Build dataset
     train_dataset = build_dataset(cfg.data.train)
     val_dataset = build_dataset(cfg.data.val)
@@ -77,19 +80,22 @@ def main():
         shuffle=False
     )
 
-
     # Build the detector model
     model = build_detector(cfg.model)
     model.init_weights()
 
-    #CustomHook 추가
-    cfg.custom_hooks = [
-        dict(type = 'CustomEvalHook', dataloader=val_dataloader, interval=1, save_best='auto', priority='VERY_LOW'),
-        dict(type = 'WandBPrecisionRecallHook', priority = 'VERY_LOW')   
-    ]
+    # Custom hooks
+    cfg.log_config = dict(
+        interval=10,
+        hooks=[
+            dict(type='TextLoggerHook'),
+            dict(type='CustomWandbLoggerHook')  # Use the custom hook to log the PR curve to WandB
+        ]
+    )
 
     # Train the model
     train_detector(model, train_dataset, cfg, distributed=False, validate=True)
 
 if __name__ == '__main__':
     main()
+

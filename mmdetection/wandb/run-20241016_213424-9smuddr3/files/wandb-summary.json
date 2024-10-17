@@ -1,0 +1,1 @@
+{"momentum":0.9,"_timestamp":1.7290821165072384e+09,"learning_rate":0.008981020000000001,"_wandb":{"runtime":57},"train/loss_bbox":1.4926728546619414,"train/grad_norm":3.8963356590270997,"_runtime":51.888925282,"_step":450,"train/loss":2.2786740851402283,"train/loss_cls":0.7860012257099152}
