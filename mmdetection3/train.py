@@ -51,6 +51,29 @@ def main():
     cfg.val_evaluator.ann_file = osp.join(args.data_root, 'val.json')
     cfg.test_evaluator.ann_file = osp.join(args.data_root, 'test.json')
 
+    cfg.optim_wrapper.optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
+    cfg.optim_wrapper.type='OptimWrapper'
+
+    cfg.param_scheduler[0] = dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500)
+    cfg.param_scheduler[1] = dict(type='MultiStepLR', by_epoch=True, milestones=[8, 11], gamma=0.1)
+
+    cfg.train_cfg.max_epochs = 1
+    cfg.train_cfg.val_interval = 1
+
+    cfg.default_hooks.timer = dict(type='IterTimerHook')
+    cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
+    cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
+
+    # 기본 훈련 설정의 hook 변경 가능
+    # cfg.default_hooks = dict(
+    #     timer=dict(type='IterTimerHook'),
+    #     logger=dict(type='LoggerHook', interval=50),
+    #     param_scheduler=dict(type='ParamSchedulerHook'),
+    #     checkpoint=dict(type='CheckpointHook', interval=1),
+    #     sampler_seed=dict(type='DistSamplerSeedHook'),
+    #     visualization=dict(type='DetVisualizationHook')
+    # )
+
     # 옵티마이저 설정 수정
     cfg.optim_wrapper.optimizer.lr = args.lr
 

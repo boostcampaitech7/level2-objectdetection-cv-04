@@ -148,3 +148,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# mmdetection3
+mmdetection3/inference_results
+mmdetection3/work_dirs
