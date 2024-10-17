@@ -6,6 +6,8 @@ from mmdet.models import build_detector
 from mmdet.apis import train_detector, single_gpu_test
 from mmdet.utils import get_device
 from mmcv.runner import load_checkpoint
+from wandb_hooks import CustomEvalHook, WandBPrecisionRecallHook
+
 
 # File paths
 config_name = 'retinanet_x101_64x4d_fpn_1x_coco.py'
