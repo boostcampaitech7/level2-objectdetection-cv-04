@@ -1,36 +1,6 @@
 import argparse
 import os
 from mmcv import Config
-from mmdet.datasets import build_dataset
-from mmdet.models import build_detector
-from mmdet.apis import train_detector
-from mmdet.datasets import (build_dataloader, build_dataset,
-                            replace_ImageToTensor)
-from mmdet.utils import get_device
-from wandb_hooks import WandBPrecisionRecallHook
-
-
-
-#파일 경로 지정
-config_name = 'retinanet_x101_64x4d_fpn_1x_coco.py'
-workdir_name = 'workdir_' + config_name
-
-#Train 파일 돌 때 새로운 dir 파일 생성
-os.makedirs(workdir_name, exist_ok = True)
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Train a Faster R-CNN model")
-    # Config 관련 argument
-    parser.add_argument('--config', default='/data/ephemeral/home/level2-objectdetection-cv-04/mmdetection/configs/retinanet/' + config_name, help='config file path')
-    parser.add_argument('--work-dir', default='/data/ephemeral/home/level2-objectdetection-cv-04/mmdetection/' + workdir_name, help='the dir to save logs and models')
-    parser.add_argument('--seed', type=int, default=2022, help='random seed')
-    parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='ids of gpus to use')
-    parser.add_argument('--samples-per-gpu', type=int, default=4, help='samples per gpu')
-    return parser.parse_args()
-
-import argparse
-import os
-from mmcv import Config
 from mmdet.datasets import build_dataset, build_dataloader
 from mmdet.models import build_detector
 from mmdet.apis import train_detector, single_gpu_test
@@ -64,10 +34,8 @@ def main():
 
     #CustomHook 추가
     cfg.custom_hooks = [
-        dict(
-            type = 'WandBPrecisionRecallHook',
-            priority = 'VERY_LOW'
-        )
+        dict(type = 'CustomEvalHook', interval=1, save_best='auto', priority='VERY_LOW'),
+        dict(type = 'WandBPrecisionRecallHook', priority = 'VERY_LOW')   
     ]
 
     # Set workflow to train only
