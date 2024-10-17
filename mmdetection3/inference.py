@@ -11,12 +11,12 @@ import pandas as pd
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 추론")
-    parser.add_argument('--config', default='configs/faster_rcnn/faster-rcnn_r50_fpn_2x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--checkpoint', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/work_dirs/faster-rcnn_r50_fpn_2x_trash/epoch_10.pth', help='체크포인트 파일 경로')
-    parser.add_argument('--work-dir', default='/data/ephemeral/home/backup/mmdetection3/work_dirs/', help='작업 디렉토리')
+    parser.add_argument('--config', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/configs/detr/detr_r50_8xb2-150e_coco.py', help='설정 파일 경로')
+    parser.add_argument('--checkpoint', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/work_dirs/detr_r50_8xb2-150e_coco_trash/epoch_30.pth', help='체크포인트 파일 경로')
+    parser.add_argument('--work-dir', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/work_dirs/', help='작업 디렉토리')
     parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--output-dir', default='inference_results', help='결과 저장 디렉토리')
-    parser.add_argument('--score-thr', type=float, default=0.3, help='점수 임계값')
+    parser.add_argument('--score-thr', type=float, default=0.25, help='점수 임계값')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
     return parser.parse_args()
 
@@ -31,7 +31,7 @@ def main():
                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
     # 모델 설정 수정
-    cfg.model.roi_head.bbox_head.num_classes = 10
+    cfg.model.bbox_head.num_classes = 10
     
     # 설정 수정
     cfg.work_dir = args.work_dir  # 이 줄을 추가
