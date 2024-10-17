@@ -82,7 +82,7 @@ class BestCheckpointHook(Hook):
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a Faster R-CNN model")
     # Config 관련 argument
-    parser.add_argument('--config', default='./configs/cascade_rcnn/cascade_rcnn_x101_32x4d_fpn_20e_coco.py', help='config file path')
+    parser.add_argument('--config', default='./configs/cascade_rcnn/cascade_rcnn_x101_32x4d_fpn_1x_coco.py', help='config file path')
     parser.add_argument('--work-dir', default='./work_dirs/v1', help='the dir to save logs and models')
     parser.add_argument('--seed', type=int, default=2022, help='random seed')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='ids of gpus to use')

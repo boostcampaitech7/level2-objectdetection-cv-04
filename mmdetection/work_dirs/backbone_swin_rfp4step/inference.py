@@ -14,7 +14,7 @@ import numpy as np
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN Inference")
-    parser.add_argument('--config', default='./configs/faster_rcnn/faster_rcnn_r50_fpn_20e_coco.py', help='config file path')
+    parser.add_argument('--config', default='./configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py', help='config file path')
     parser.add_argument('--checkpoint', default='latest', help='checkpoint to use')
     parser.add_argument('--work-dir', default='./work_dirs/faster_rcnn_r50_fpn_1x_trash', help='the dir to save logs and models')
     parser.add_argument('--gpu-id', type=int, default=0, help='id of gpu to use')
