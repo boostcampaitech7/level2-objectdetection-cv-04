@@ -5,9 +5,9 @@ from mmdet.utils import register_all_modules
 import os.path as osp
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
-    parser.add_argument('--config', default='./configs/faster_rcnn/faster-rcnn_r50_fpn_2x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/faster-rcnn_r50_fpn_2x_trash', help='로그와 모델을 저장할 디렉토리')
+    parser = argparse.ArgumentParser(description="DETR 모델 훈련")
+    parser.add_argument('--config', default='./configs/detr/detr_r50_8xb2-150e_coco.py', help='설정 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/detr_r50_8xb2-150e_coco_trash', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--epochs', type=int, default=24, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
@@ -28,8 +28,31 @@ def main():
     classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
-    # 모델 설정 수정
-    cfg.model.roi_head.bbox_head.num_classes = args.num_classes
+    # DETR 특정 설정
+    cfg.model.type = 'DETR'
+    cfg.model.backbone.type = 'ResNet'
+    cfg.model.backbone.depth = 50
+    cfg.model.backbone.num_stages = 4
+    cfg.model.backbone.out_indices = (3,)
+    cfg.model.backbone.frozen_stages = 1
+    cfg.model.neck = dict(type='ChannelMapper', in_channels=[2048], out_channels=256, num_outs=1)
+    cfg.model.bbox_head.type = 'DETRHead'
+    cfg.model.bbox_head.num_classes = args.num_classes
+    cfg.model.bbox_head.embed_dims = 256
+    
+    # num_queries를 bbox_head에서 제거하고 모델 레벨로 이동
+    cfg.modelnum_queries = 100
+
+
+    # 이미지 해상도 조절을 위한 파이프라인 수정
+    # 훈련 파이프라인만 수정
+    cfg.train_pipeline = [
+        dict(type='LoadImageFromFile', backend_args=None),
+        dict(type='LoadAnnotations', with_bbox=True),
+        dict(type='Resize', scale=(224, 224), keep_ratio=False),
+        dict(type='RandomFlip', prob=0.5),
+        dict(type='PackDetInputs')
+    ]
 
     # 데이터셋 설정 수정
     cfg.train_dataloader.dataset.ann_file = osp.join(args.data_root, 'train.json')
@@ -51,18 +74,21 @@ def main():
     cfg.val_evaluator.ann_file = osp.join(args.data_root, 'val.json')
     cfg.test_evaluator.ann_file = osp.join(args.data_root, 'test.json')
 
-    cfg.optim_wrapper.optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
-    cfg.optim_wrapper.type='OptimWrapper'
+    # 옵티마이저 설정 수정
+    cfg.optim_wrapper.optimizer = dict(type='AdamW', lr=args.lr, weight_decay=0.0001)
+    cfg.optim_wrapper.clip_grad = dict(max_norm=0.1, norm_type=2)
 
-    cfg.param_scheduler[0] = dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500)
-    cfg.param_scheduler[1] = dict(type='MultiStepLR', by_epoch=True, milestones=[8, 11], gamma=0.1)
-
-    cfg.train_cfg.max_epochs = 1
+  # 학습 스케줄러 설정
+    cfg.param_scheduler = [
+        dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500),
+        dict(type='MultiStepLR', begin=0, end=args.epochs, by_epoch=True, milestones=[15,21,29], gamma=0.1)
+    ]
+    cfg.train_cfg.max_epochs = 30
     cfg.train_cfg.val_interval = 1
 
-    cfg.default_hooks.timer = dict(type='IterTimerHook')
-    cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
-    cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
+    # cfg.default_hooks.timer = dict(type='IterTimerHook')
+    # cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
+    # cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
 
     # 기본 훈련 설정의 hook 변경 가능
     # cfg.default_hooks = dict(
@@ -73,12 +99,6 @@ def main():
     #     sampler_seed=dict(type='DistSamplerSeedHook'),
     #     visualization=dict(type='DetVisualizationHook')
     # )
-
-    # 옵티마이저 설정 수정
-    cfg.optim_wrapper.optimizer.lr = args.lr
-
-    # 훈련 설정 수정
-    cfg.train_cfg.max_epochs = args.epochs
 
     # 작업 디렉토리 설정
     cfg.work_dir = args.work_dir
