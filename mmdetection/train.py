@@ -107,7 +107,7 @@ def main():
         )
     ]
 
-    root = '../dataset/'
+    root = '../../dataset/'
     # Modify dataset config
     cfg.data.train.classes = classes
     cfg.data.train.img_prefix = root + 'train'
