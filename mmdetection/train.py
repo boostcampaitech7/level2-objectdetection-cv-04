@@ -34,12 +34,6 @@ def main():
     # Load config
     cfg = Config.fromfile(args.config)
 
-    #CustomHook 추가
-    cfg.custom_hooks = [
-        dict(type = 'CustomEvalHook', interval=1, save_best='auto', priority='VERY_LOW'),
-        dict(type = 'WandBPrecisionRecallHook', priority = 'VERY_LOW')   
-    ]
-
     # Set workflow to train only
     cfg.workflow = [('train', 1)]
 
@@ -74,10 +68,26 @@ def main():
 
     # Build dataset
     train_dataset = build_dataset(cfg.data.train)
+    val_dataset = build_dataset(cfg.data.val)
+    val_dataloader = build_dataloader(
+        val_dataset,
+        samples_per_gpu=1,
+        workers_per_gpu=2,
+        dist=False,
+        shuffle=False
+    )
+
 
     # Build the detector model
     model = build_detector(cfg.model)
     model.init_weights()
+
+    #CustomHook 추가
+    cfg.custom_hooks = [
+        dict(type = 'CustomEvalHook', dataloader=val_dataloader, interval=1, save_best='auto', priority='VERY_LOW'),
+        dict(type = 'WandBPrecisionRecallHook', priority = 'VERY_LOW')   
+    ]
+
 
     # Train the model
     train_detector(model, train_dataset, cfg, distributed=False, validate=True)
