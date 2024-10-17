@@ -78,6 +78,7 @@ class WandBPrecisionRecallHook(Hook):
             filtered_scores = prediction_scores[:min_length]
 
             data = [[filtered_ground_truth[i], filtered_scores[i]] for i in range(min_length)]
+            print(data)
             table = wandb.Table(data=data, columns=["ground_truth", "score"])
             pr_curve = wandb.plot.pr_curve(
                 table,

@@ -88,7 +88,6 @@ def main():
         dict(type = 'WandBPrecisionRecallHook', priority = 'VERY_LOW')   
     ]
 
-
     # Train the model
     train_detector(model, train_dataset, cfg, distributed=False, validate=True)
 
