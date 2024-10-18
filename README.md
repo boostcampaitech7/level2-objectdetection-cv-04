@@ -100,10 +100,22 @@ project_root/
 ## Experiment (~24.10.24)
 ### Experiment 규칙
 <br>
-Step1 .  반드시 notion에 실험 계획을 올려주세요
-<br>
-Step2. 실험 후 실험 내용은 브랜치 명 "exp/{실험할 내용}"으로 깃에 올려주세요.<br>
- Step3.  실험 결과는 구글 시트에 기록해주세요
+Experiment를 진행하기 전, 새로운 브랜치를 <b>develop 브랜치</b>에서 새로 생성해주세요.
+<br><br>
+Step1 .  반드시 notion에 실험 계획을 올려주세요<br><br>
+Step2. 실험 후 실험 내용은 브랜치 명 "exp/{실험할 내용}"으로 깃에 올려주세요.<br><br>
+Step3. 세부적인 실험은 Issue로 작성하여 정리합니다. <br>
+- 세부적인 실험은 동일한 config 폴더 내에서 Backbone, Neck 등 또는 lr, loss 등을 바꾸는 실험을 의미합니다.<br><br>
+ Step4.  실험 결과는 구글 시트에 기록해주세요<br><br>
+Step5. 한 개의 branch에서 실험이 끝난다면 반드시 Pull Request를 작성해주세요.<br>
+- Pull Request는 develop 브랜치로 request를 해주세요.
+- Issue 단위여도 충분히 의미와 성과가 있는 실험이라고 생각하면 추가적으로 Pull Request를 해주셔도 가능합니다.<br><br>
+### 최종으로 .workdir에 포함되어야 할 것
+- 폴더 이름 양식을 "#{Issue Number} description(optional)" 형식으로 지정해주세요<br>
+- train.py<br>
+- inference.py<br>
+- (optional) config 등의 파일을 변경하였다면 폴더에 함께 넣어 업로드 후, 기존 경로의 파일 (ex: mmdetection/config/{모델명}/{세부 모델명}.py)은 develop과 동일하게 맞춰주세요<br>
+
 
 ### Hyperparameter Tuning Experiment
 - Write in [Google sheet](https://docs.google.com/spreadsheets/d/1tuTotQ_ALJQyJPzXt2NMeeyWfkm5csweRrYfWxnff8A/edit?usp=sharing)
@@ -112,7 +124,9 @@ Step2. 실험 후 실험 내용은 브랜치 명 "exp/{실험할 내용}"으로 
 
 ### 브랜치 작성 규칙
 1. main 브랜치는 건들지 말아주세요
-2. feature 관련 브랜치명은 "feat/{구현할 내용}".
-3. 각종 실험 관련 브랜치명은 "exp/{실험할내용}".
-4. 수정 사항 관련 브랜치명은 "fix/{수정할 내용}"
+2. develop 브랜치는 건들지 말아주세요
+3. feature 관련 브랜치명은 "feat/{구현할 내용}".
+4. 각종 실험 관련 브랜치명은 "exp/{실험할내용}".
+5. 수정 사항 관련 브랜치명은 "fix/{수정할 내용}"
+
    
