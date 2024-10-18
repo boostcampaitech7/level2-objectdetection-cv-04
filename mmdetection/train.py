@@ -36,13 +36,18 @@ def main():
 
     root = '/data/ephemeral/home/dataset/'
 
-    img_size = 512
+    img_size = 4
 
     # Modify dataset config
     cfg.data.train.classes = classes
-    cfg.data.train.img_prefix = root
+    cfg.data.train.img_prefix = root + 'train'
     cfg.data.train.ann_file = root + 'train.json'
     cfg.data.train.pipeline[2]['img_scale'] = (img_size,img_size)
+
+    cfg.data.val.classes = classes
+    cfg.data.val.img_prefix = root + 'val'
+    cfg.data.val.ann_file = root + 'val.json'
+    cfg.data.val.pipeline[1]['img_scale'] = (img_size,img_size)
 
     cfg.data.test.classes = classes
     cfg.data.test.img_prefix = root
@@ -73,7 +78,7 @@ def main():
     model.init_weights()
 
     # Train the model
-    train_detector(model, datasets[0], cfg, distributed=False, validate=False)
+    train_detector(model, datasets[0], cfg, distributed=False, validate=True)
 
 if __name__ == '__main__':
     main()

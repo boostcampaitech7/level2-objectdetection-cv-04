@@ -14,25 +14,24 @@ model = dict(
         init_cfg=dict(
             type='Pretrained', checkpoint='open-mmlab://resnext101_64x4d'))
 )
-
 # Add the log_config to integrate WandB logging
-log_config = dict(
-    interval=50,
-    hooks=[
-        dict(type='TextLoggerHook'),
-        dict(
-            type='WandbLoggerHook',
-            init_kwargs=dict(
-                project='retinanet_x101_project',
-                entity='jongseo001111-naver',  # Replace with your WandB username
-                config=dict(
-                    lr = 0.01, 
-                    batch_size = 4,  
-                    num_epochs = 12,  
-                    backbone ='ResNeXt',
-                    depth = 101
+    log_config = dict(
+        interval=50,
+        hooks=[
+            dict(type='TextLoggerHook'),
+            dict(
+                type='WandbLoggerHook',
+                init_kwargs=dict(
+                    project='retinanet_x101_project',
+                    entity='jongseo001111-naver',  # Replace with your WandB username
+                    config=dict(
+                        lr = 0.01, 
+                        batch_size = 4,  
+                        num_epochs = 12,  
+                        backbone ='ResNeXt',
+                        depth = 101
+                    )
                 )
             )
-        )
-    ]
-)
+        ]
+    )
