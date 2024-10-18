@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedGroupKFold
 import pandas as pd
 from collections import Counter
-annotation = '../dataset/train.json'
+annotation = '/data/ephemeral/home/dataset/train.json'
 
 with open(annotation) as f: 
     data = json.load(f)

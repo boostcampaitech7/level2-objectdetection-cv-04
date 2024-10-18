@@ -6,7 +6,7 @@ from sklearn.model_selection import StratifiedGroupKFold
 from datetime import datetime
 
 # Load annotations
-annotation = '../dataset/train.json'
+annotation = '/data/ephemeral/home/dataset/train.json'
 with open(annotation) as f: 
     data = json.load(f)
 
@@ -104,32 +104,32 @@ for idx in val_idx:
     val_annotations['annotations'].append(data['annotations'][idx])
 
 # Create new folders for train and val
-os.makedirs('../dataset/new_train', exist_ok=True)
-os.makedirs('../dataset/val', exist_ok=True)
+os.makedirs('/data/ephemeral/home/dataset/new_train', exist_ok=True)
+os.makedirs('/data/ephemeral/home/dataset/val', exist_ok=True)
 
 # Save train and validation data to JSON files
-with open('../dataset/train.json', 'w') as f:
+with open('/data/ephemeral/home/dataset/train.json', 'w') as f:
     json.dump(train_annotations, f)
 
-with open('../dataset/val.json', 'w') as f:
+with open('/data/ephemeral/home/dataset/val.json', 'w') as f:
     json.dump(val_annotations, f)
 
 # Move images to corresponding folders
 def move_images(annotations, dest_folder):
     for img in annotations['images']:
         image_id = img['id']
-        src = f'../dataset/train/{format_image_id(image_id)}'  # Assuming original images are in 'train'
+        src = f'/data/ephemeral/home/dataset/train/{format_image_id(image_id)}'  # Assuming original images are in 'train'
         dst = os.path.join(dest_folder, format_image_id(image_id))
         
         # Copy image to destination folder
         shutil.copy(src, dst)
 
 # Move new train and val images to respective folders
-move_images(train_annotations, '../dataset/new_train')
-move_images(val_annotations, '../dataset/val')
+move_images(train_annotations, '/data/ephemeral/home/dataset/new_train')
+move_images(val_annotations, '/data/ephemeral/home/dataset/val')
 
 # After copying, remove old train folder and rename new_train to train
-shutil.rmtree('../dataset/train', ignore_errors=True)
-os.rename('../dataset/new_train', '../dataset/train')
+shutil.rmtree('/data/ephemeral/home/dataset/train', ignore_errors=True)
+os.rename('/data/ephemeral/home/dataset/new_train', '/data/ephemeral/home/dataset/train')
 
 print("Train and validation sets created successfully.")

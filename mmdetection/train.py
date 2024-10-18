@@ -78,9 +78,6 @@ class BestCheckpointHook(Hook):
         runner.save_checkpoint(runner.work_dir, best_model_path)
         print(f'Current Best Model: Epoch {runner.epoch + 1} model, mAP: {current_score}')
 
-
-
-
 #파일 경로 지정
 config_name = 'retinanet_x101_64x4d_fpn_1x_coco.py'
 workdir_name = 'workdir_' + config_name
@@ -91,8 +88,8 @@ os.makedirs(workdir_name, exist_ok = True)
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a Faster R-CNN model")
     # Config 관련 argument
-    parser.add_argument('--config', default='./configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py', help='config file path')
-    parser.add_argument('--work-dir', default='./work_dirs/cv2', help='the dir to save logs and models')
+    parser.add_argument('--config', default='/data/ephemeral/home/level2-objectdetection-cv-04/mmdetection/configs/retinanet/' + config_name, help='config file path')
+    parser.add_argument('--work-dir', default='/data/ephemeral/home/level2-objectdetection-cv-04/mmdetection/' + workdir_name, help='the dir to save logs and models')
     parser.add_argument('--seed', type=int, default=2022, help='random seed')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='ids of gpus to use')
     parser.add_argument('--samples-per-gpu', type=int, default=4, help='samples per gpu')
@@ -116,7 +113,7 @@ def main():
         )
     ]
 
-    root = '../dataset/'
+    root = '/data/ephemeral/home/dataset/'
     # Modify dataset config
     cfg.data.train.classes = classes
     cfg.data.train.img_prefix = root + 'train'
@@ -159,26 +156,26 @@ def main():
     train_detector(model, datasets[0], cfg, distributed=False, validate=True)
 
     #wandb log 직접 자기 모델에 맞춰 수정해서 자기 config에 복붙하시면 됨다!
-    log_config = dict(
-        interval=50,
-        hooks=[
-            dict(type='TextLoggerHook'),
-            dict(
-                type='WandbLoggerHook',
-                init_kwargs=dict(
-                    project='retinanet_x101_project',
-                    entity='jongseo001111-naver',  # Replace with your WandB username
-                    config=dict(
-                        lr = 0.01, 
-                        batch_size = 4,  
-                        num_epochs = 12,  
-                        backbone ='ResNeXt',
-                        depth = 101
-                    )
-                )
-            )
-        ]
-    )
+    # log_config = dict(
+    #     interval=50,
+    #     hooks=[
+    #         dict(type='TextLoggerHook'),
+    #         dict(
+    #             type='WandbLoggerHook',
+    #             init_kwargs=dict(
+    #                 project='retinanet_x101_project',
+    #                 entity='jongseo001111-naver',  # Replace with your WandB username
+    #                 config=dict(
+    #                     lr = 0.01, 
+    #                     batch_size = 4,  
+    #                     num_epochs = 12,  
+    #                     backbone ='ResNeXt',
+    #                     depth = 101
+    #                 )
+    #             )
+    #         )
+    #     ]
+    # )
 
 if __name__ == '__main__':
     main()
