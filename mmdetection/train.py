@@ -1,4 +1,5 @@
 import argparse
+import os
 from mmcv import Config
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
@@ -79,6 +80,14 @@ class BestCheckpointHook(Hook):
 
 
 
+
+#파일 경로 지정
+config_name = 'retinanet_x101_64x4d_fpn_1x_coco.py'
+workdir_name = 'workdir_' + config_name
+
+#Train 파일 돌 때 새로운 dir 파일 생성
+os.makedirs(workdir_name, exist_ok = True)
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a Faster R-CNN model")
     # Config 관련 argument
@@ -129,7 +138,11 @@ def main():
     cfg.gpu_ids = args.gpu_ids
     cfg.work_dir = args.work_dir
 
-    cfg.model.roi_head.bbox_head.num_classes = 10
+    # 2stage 모델에서 사용
+    # cfg.model.roi_head.bbox_head.num_classes = 10
+    
+    # 1stage 모델에서 사용
+    cfg.model.bbox_head.num_classes = 10
 
     cfg.optimizer_config.grad_clip = dict(max_norm=35, norm_type=2)
     cfg.checkpoint_config = dict(max_keep_ckpts=1, interval=1)
@@ -144,6 +157,28 @@ def main():
     model.init_weights()
     # Train the model
     train_detector(model, datasets[0], cfg, distributed=False, validate=True)
+
+    #wandb log 직접 자기 모델에 맞춰 수정해서 자기 config에 복붙하시면 됨다!
+    log_config = dict(
+        interval=50,
+        hooks=[
+            dict(type='TextLoggerHook'),
+            dict(
+                type='WandbLoggerHook',
+                init_kwargs=dict(
+                    project='retinanet_x101_project',
+                    entity='jongseo001111-naver',  # Replace with your WandB username
+                    config=dict(
+                        lr = 0.01, 
+                        batch_size = 4,  
+                        num_epochs = 12,  
+                        backbone ='ResNeXt',
+                        depth = 101
+                    )
+                )
+            )
+        ]
+    )
 
 if __name__ == '__main__':
     main()
