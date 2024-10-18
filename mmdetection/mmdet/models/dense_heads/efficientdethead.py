@@ -9,14 +9,14 @@ from torch import Tensor
 
 from mmdet.models.dense_heads.anchor_head import AnchorHead
 from mmdet.models.utils import images_to_levels, multi_apply
-from ..builder import HEADS
+from mmdet.registry import MODELS
 from mmdet.structures.bbox import cat_boxes, get_box_tensor
 from mmdet.utils import (InstanceList, OptConfigType, OptInstanceList,
                          OptMultiConfig, reduce_mean)
 from ..utils.utils import DepthWiseConvBlock
 
 
-@HEADS.register_module()
+@MODELS.register_module()
 class EfficientDetHead(AnchorHead):
     """EfficientDetHead with separate BN.
 

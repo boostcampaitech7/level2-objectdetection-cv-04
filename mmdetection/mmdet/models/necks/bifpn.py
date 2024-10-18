@@ -5,7 +5,6 @@ import torch.nn as nn
 from mmcv.cnn.bricks import Swish
 from mmengine.model import BaseModule
 
-from ..builder import NECKS
 from mmdet.utils import MultiConfig, OptConfigType
 from ..utils.utils import DepthWiseConvBlock, DownChannelBlock, MaxPool2dSamePadding
 
@@ -260,7 +259,6 @@ class BiFPNStage(nn.Module):
         return p3_out, p4_out, p5_out, p6_out, p7_out
 
 
-@NECKS.register_module()
 class BiFPN(BaseModule):
     """
         num_stages: int, bifpn number of repeats

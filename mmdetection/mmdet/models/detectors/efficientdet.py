@@ -1,10 +1,8 @@
 # EfficientDetHead Implementation for MMDetection
 
 import torch.nn as nn
-from ..builder import DETECTORS
 from mmdet.models.detectors.single_stage import SingleStageDetector
 
-@DETECTORS.register_module()
 class EfficientDet(SingleStageDetector):
     def __init__(self,
                  backbone,
