@@ -80,5 +80,27 @@ def main():
     # Train the model
     train_detector(model, datasets[0], cfg, distributed=False, validate=True)
 
+    #wandb log 직접 자기 모델에 맞춰 수정해서 자기 config에 복붙하시면 됨다!
+    log_config = dict(
+        interval=50,
+        hooks=[
+            dict(type='TextLoggerHook'),
+            dict(
+                type='WandbLoggerHook',
+                init_kwargs=dict(
+                    project='retinanet_x101_project',
+                    entity='jongseo001111-naver',  # Replace with your WandB username
+                    config=dict(
+                        lr = 0.01, 
+                        batch_size = 4,  
+                        num_epochs = 12,  
+                        backbone ='ResNeXt',
+                        depth = 101
+                    )
+                )
+            )
+        ]
+    )
+
 if __name__ == '__main__':
     main()
