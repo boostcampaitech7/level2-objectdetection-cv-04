@@ -11,12 +11,12 @@ import pandas as pd
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 추론")
-    parser.add_argument('--config', default='configs/faster_rcnn/faster-rcnn_r50_fpn_2x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--checkpoint', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/work_dirs/faster-rcnn_r50_fpn_2x_trash/epoch_10.pth', help='체크포인트 파일 경로')
-    parser.add_argument('--work-dir', default='/data/ephemeral/home/backup/mmdetection3/work_dirs/', help='작업 디렉토리')
+    parser.add_argument('--config', default='./configs/centernet/centernet-update_r50-caffe_fpn_ms-1x_coco.py', help='설정 파일 경로')
+    parser.add_argument('--checkpoint', default='/data/ephemeral/home/Hongjoo/level2-objectdetection-cv-04/mmdetection3/work_dirs/centernet-update_r50-caffe_fpn_ms-1x_coco_train_exp1_epochs12/epoch_12.pth', help='체크포인트 파일 경로')
+    parser.add_argument('--work-dir', default='/data/ephemeral/home/Hongjoo/mmdetection3/work_dirs/', help='작업 디렉토리')
     parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--output-dir', default='inference_results', help='결과 저장 디렉토리')
-    parser.add_argument('--score-thr', type=float, default=0.3, help='점수 임계값')
+    parser.add_argument('--output-dir', default='inference_results/t1_epoch12', help='결과 저장 디렉토리')
+    parser.add_argument('--score-thr', type=float, default=0.05, help='점수 임계값')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
     return parser.parse_args()
 
@@ -31,7 +31,7 @@ def main():
                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
     # 모델 설정 수정
-    cfg.model.roi_head.bbox_head.num_classes = 10
+    cfg.model.bbox_head.num_classes = 10
     
     # 설정 수정
     cfg.work_dir = args.work_dir  # 이 줄을 추가
@@ -96,17 +96,17 @@ def main():
         prediction_strings.append(prediction_string.strip())
         file_names.append((os.path.join('test', os.path.basename(img_path))))
 
-        # # 시각화 (옵션)
-        # runner.visualizer.add_datasample(
-        #     f'result_{idx}',
-        #     img,
-        #     data_sample=result,
-        #     draw_gt=False,
-        #     show=False,
-        #     wait_time=0,
-        #     out_file=os.path.join(output_dir, f'result_{idx}.png'),
-        #     pred_score_thr=args.score_thr
-        # )
+        # 시각화 (옵션)
+        runner.visualizer.add_datasample(
+            f'result_{idx}',
+            img,
+            data_sample=result,
+            draw_gt=False,
+            show=False,
+            wait_time=0,
+            out_file=os.path.join(output_dir, f'result_{idx}.png'),
+            pred_score_thr=args.score_thr
+        )
 
     # 제출 파일 생성
     submission = pd.DataFrame()

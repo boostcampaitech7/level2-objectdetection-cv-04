@@ -6,12 +6,12 @@ import os.path as osp
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
-    parser.add_argument('--config', default='./configs/faster_rcnn/faster-rcnn_r50_fpn_2x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/faster-rcnn_r50_fpn_2x_trash', help='로그와 모델을 저장할 디렉토리')
+    parser.add_argument('--config', default='./configs/centernet/centernet-update_r50-caffe_fpn_ms-1x_coco.py', help='설정 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/centernet-update_r50-caffe_fpn_ms-1x_coco_train_exp1_epochs12', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--epochs', type=int, default=24, help='훈련 에폭 수')
-    parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
-    parser.add_argument('--lr', type=float, default=0.02, help='학습률')
+    parser.add_argument('--epochs', type=int, default=12, help='훈련 에폭 수')
+    parser.add_argument('--batch-size', type=int, default=16, help='배치 크기')
+    # parser.add_argument('--lr', type=float, default=0.02, help='학습률')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
     parser.add_argument('--seed', type=int, default=2022, help='랜덤 시드')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
@@ -29,8 +29,9 @@ def main():
                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
     # 모델 설정 수정
-    cfg.model.roi_head.bbox_head.num_classes = args.num_classes
+    cfg.model.bbox_head.num_classes = args.num_classes
 
+#
     # 데이터셋 설정 수정
     cfg.train_dataloader.dataset.ann_file = osp.join(args.data_root, 'train.json')
     cfg.train_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'train')
@@ -46,23 +47,25 @@ def main():
     cfg.test_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'test')
     cfg.test_dataloader.dataset.metainfo = dict(classes=classes)
     cfg.test_dataloader.batch_size = args.batch_size
+#
 
     # 평가기 설정 수정
     cfg.val_evaluator.ann_file = osp.join(args.data_root, 'val.json')
     cfg.test_evaluator.ann_file = osp.join(args.data_root, 'test.json')
+#
 
-    cfg.optim_wrapper.optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
-    cfg.optim_wrapper.type='OptimWrapper'
+    # cfg.optim_wrapper.optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
+    # cfg.optim_wrapper.type='OptimWrapper'
 
-    cfg.param_scheduler[0] = dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500)
-    cfg.param_scheduler[1] = dict(type='MultiStepLR', by_epoch=True, milestones=[8, 11], gamma=0.1)
+    #cfg.param_scheduler[0] = dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500)
+    #cfg.param_scheduler[1] = dict(type='MultiStepLR', by_epoch=True, milestones=[2], gamma=0.1)
 
-    cfg.train_cfg.max_epochs = 1
-    cfg.train_cfg.val_interval = 1
+    # cfg.train_cfg.max_epochs = 1
+    # cfg.train_cfg.val_interval = 1
 
-    cfg.default_hooks.timer = dict(type='IterTimerHook')
-    cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
-    cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
+    # cfg.default_hooks.timer = dict(type='IterTimerHook')
+    # cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
+    # cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
 
     # 기본 훈련 설정의 hook 변경 가능
     # cfg.default_hooks = dict(
@@ -73,12 +76,8 @@ def main():
     #     sampler_seed=dict(type='DistSamplerSeedHook'),
     #     visualization=dict(type='DetVisualizationHook')
     # )
-
-    # 옵티마이저 설정 수정
-    cfg.optim_wrapper.optimizer.lr = args.lr
-
-    # 훈련 설정 수정
-    cfg.train_cfg.max_epochs = args.epochs
+    # 최근 3개 체크포인트 저장
+    cfg.default_hooks.checkpoint = dict(type='CheckpointHook', interval=1, max_keep_ckpts=3)
 
     # 작업 디렉토리 설정
     cfg.work_dir = args.work_dir
