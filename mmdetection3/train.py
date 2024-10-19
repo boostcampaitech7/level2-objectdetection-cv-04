@@ -3,15 +3,17 @@ from mmengine.config import Config, ConfigDict
 from mmengine.runner import Runner
 from mmdet.utils import register_all_modules
 import os.path as osp
+import wandb
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
-    parser.add_argument('--config', default='./configs/centernet/centernet-update_r50-caffe_fpn_ms-1x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/centernet-update_r50-caffe_fpn_ms-1x_coco_train_exp1_epochs12', help='로그와 모델을 저장할 디렉토리')
-    parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--epochs', type=int, default=12, help='훈련 에폭 수')
-    parser.add_argument('--batch-size', type=int, default=16, help='배치 크기')
-    # parser.add_argument('--lr', type=float, default=0.02, help='학습률')
+    # /data/ephemeral/home/Hongjoo/level2-objectdetection-cv-04/mmdetection3/configs/centernet/centernet-update_r101_fpn_8xb8-amp-lsj-200e_coco.py
+    parser.add_argument('--config', default='./configs/centernet/centernet-update_r101_fpn_8xb8-amp-lsj-200e_coco.py', help='설정 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/centernet-update_r101_fpn_8xb8-amp-lsj-200e_coco_t1', help='로그와 모델을 저장할 디렉토리')
+    parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        이터셋 루트 디렉토리')
+    parser.add_argument('--epochs', type=int, default=1, help='훈련 에폭 수')
+    parser.add_argument('--batch-size', type=int, default=4, help='배치 크기')# 64
+    parser.add_argument('--lr', type=float, default=0.02, help='학습률')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
     parser.add_argument('--seed', type=int, default=2022, help='랜덤 시드')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
@@ -30,24 +32,62 @@ def main():
 
     # 모델 설정 수정
     cfg.model.bbox_head.num_classes = args.num_classes
-
-#
+    
+    cfg.data_root = args.data_root
+    
     # 데이터셋 설정 수정
-    cfg.train_dataloader.dataset.ann_file = osp.join(args.data_root, 'train.json')
-    cfg.train_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'train')
-    cfg.train_dataloader.dataset.metainfo = dict(classes=classes)
-    cfg.train_dataloader.batch_size = args.batch_size
+    # cfg.train_dataloader =dict(
+    #     batch_size=args.batch_size,
+    #     num_workers=2,
+    #     persistent_workers=True,
+    #     sampler=dict(type='DefaultSampler', shuffle=True),
+    #     batch_sampler=dict(type='AspectRatioBatchSampler'),
+    #     dataset=dict(
+    #         type=cfg.dataset_type,
+    #         data_root=args.data_root,
+    #         ann_file= osp.join(args.data_root, 'train.json'),
+    #         data_prefix=dict(img=osp.join(args.data_root, 'train')),
+    #         filter_cfg=dict(filter_empty_gt=True, min_size=32),
+    #         pipeline= cfg.train_pipeline,
+    #         backend_args=cfg.backend_args))
+    cfg.train_dataloader = dict(
+        batch_size=args.batch_size,
+        num_workers=2,
+        persistent_workers=True,
+        sampler=dict(type='DefaultSampler', shuffle=True),
+        batch_sampler=dict(type='AspectRatioBatchSampler'),
+        dataset=dict(
+            type=cfg.dataset_type,
+             data_root=args.data_root,
+            ann_file = osp.join(args.data_root, 'train.json'),
+            data_prefix=dict(img=osp.join(args.data_root, 'train')),
+            pipeline=cfg.train_pipeline,
+            metainfo = dict(classes=classes),
+            backend_args=cfg.backend_args
+            )
+        )
+    # cfg.train_dataloader.dataset.ann_file = osp.join(args.data_root, 'train.json')
+    # cfg.train_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'train')
+    # cfg.train_dataloader.dataset.metainfo = dict(classes=classes)
+    # cfg.train_dataloader.batch_size = args.batch_size
+    cfg.train_cfg.max_epochs = args.epochs
 
+
+    
     cfg.val_dataloader.dataset.ann_file = osp.join(args.data_root, 'val.json')
     cfg.val_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'val')
     cfg.val_dataloader.dataset.metainfo = dict(classes=classes)
     cfg.val_dataloader.batch_size = args.batch_size
+    cfg.val_dataloader.dataset.data_root = args.data_root
+    cfg.val_dataloader.dataset.data_root = args.data_root
 
     cfg.test_dataloader.dataset.ann_file = osp.join(args.data_root, 'test.json')
     cfg.test_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'test')
+    cfg.test_dataloader.dataset.data_root = args.data_root
     cfg.test_dataloader.dataset.metainfo = dict(classes=classes)
+    cfg.test_dataloader.dataset.data_root = args.data_root
     cfg.test_dataloader.batch_size = args.batch_size
-#
+#       
 
     # 평가기 설정 수정
     cfg.val_evaluator.ann_file = osp.join(args.data_root, 'val.json')
@@ -68,23 +108,87 @@ def main():
     # cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
 
     # 기본 훈련 설정의 hook 변경 가능
-    # cfg.default_hooks = dict(
-    #     timer=dict(type='IterTimerHook'),
-    #     logger=dict(type='LoggerHook', interval=50),
-    #     param_scheduler=dict(type='ParamSchedulerHook'),
-    #     checkpoint=dict(type='CheckpointHook', interval=1),
-    #     sampler_seed=dict(type='DistSamplerSeedHook'),
-    #     visualization=dict(type='DetVisualizationHook')
+    # 시각화
+    cfg.default_hooks = dict(
+        timer=dict(type='IterTimerHook'),
+        logger=dict(type='LoggerHook', interval=50),
+        param_scheduler=dict(type='ParamSchedulerHook'),
+        checkpoint=dict(
+            type='CheckpointHook',
+            interval=1,
+            #save_best='auto',
+            max_keep_ckpts=3,
+            save_best='coco/bbox_mAP_50',  # Track the best bbox_mAP
+            rule='greater',
+            greater_keys=['coco/bbox_mAP_50'],  # mAP는 높을수록 좋다
+            ),
+        sampler_seed=dict(type='DistSamplerSeedHook'),
+        visualization=dict(type='DetVisualizationHook')
+    )
+    # Wandb 시각화
+    vis_backends = [
+        dict(type='LocalVisBackend'),
+        dict(type='WandbVisBackend',
+             init_kwargs={
+                'project': 'centernet-update_r101_fpn_8xb8-amp-lsj-200e_coco',
+                'entity': 'jongseo001111-naver'
+            })
+    ]
+    visualizer = dict(
+        type='DetLocalVisualizer',
+        vis_backends=vis_backends,
+        name='visualizer'
+    )
+    
+    #  cfg.default_hooks = dict(
+    # timer=dict(type='IterTimerHook'),
+    # logger=dict(type='LoggerHook', interval=50),
+    # param_scheduler=dict(type='ParamSchedulerHook'),
+    # checkpoint=dict(
+    #     type='CheckpointHook',  # Use custom checkpoint hook
+    #     interval=1,
+    #     max_keep_ckpts=3,
+    #     save_best='coco/bbox_mAP_50',  # Track the best bbox_mAP
+    #     rule='greater',
+    #     greater_keys=['coco/bbox_mAP_50'],  # mAP는 높을수록 좋다
+    # ),
+    # sampler_seed=dict(type='DistSamplerSeedHook'),
+    # visualization=dict(type='DetVisualizationHook')
     # )
-    # 최근 3개 체크포인트 저장
-    cfg.default_hooks.checkpoint = dict(type='CheckpointHook', interval=1, max_keep_ckpts=3)
+    #     vis_backends = [
+    #     dict(type='LocalVisBackend'),
+    #     dict(type='WandbVisBackend',
+    #          init_kwargs={
+    #             'project': 'cascade-rcnn_x101-32x4d',
+    #             'entity': 'jongseo001111-naver'
+    #          })
+    # ]
+    # visualizer = dict(
+    #     type='DetLocalVisualizer',
+    #     vis_backends=vis_backends,
+    #     name='visualizer')
 
+    # val 마다 best model 3개 체크포인트 저장
+    # cfg.default_hooks.checkpoint = dict(type='CheckpointHook', interval=1, save_best='auto', max_keep_ckpts=3)
+    cfg.val_evaluator.classwise = True
     # 작업 디렉토리 설정
     cfg.work_dir = args.work_dir
 
     # GPU 설정
     cfg.gpu_ids = args.gpu_ids
-
+    #batchsize
+    cfg.auto_scale_lr = dict(enable=False, base_batch_size=args.batch_size)
+    #optimizer
+    cfg.optim_wrapper = dict(
+        type = 'OptimWrapper',
+        optimizer=dict(type='SGD', lr=args.lr, momentum=0.9, weight_decay=0.0001), # 0.02
+        # Experiments show that there is no need to turn on clip_grad.
+        # paramwise_cfg=dict(norm_decay_mult=0.))
+        clip_grad=dict(max_norm=35, norm_type=2),
+        accumulative_counts = 18 # 
+        )
+    # cfg.optim_wrapper.accumulative_counts = 2  # 2번의 반복마다 그래디언트 업데이트
+    # real_batch effect =  {accumulative_counts} * {batch_size}
     # Runner 생성 및 훈련 시작
     runner = Runner.from_cfg(cfg)
     runner.train()

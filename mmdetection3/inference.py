@@ -10,12 +10,12 @@ import os.path as osp
 import pandas as pd
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Faster R-CNN 모델 추론")
+    parser = argparse.ArgumentParser(description="ceneternet2모델 추론")
     parser.add_argument('--config', default='./configs/centernet/centernet-update_r50-caffe_fpn_ms-1x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--checkpoint', default='/data/ephemeral/home/Hongjoo/level2-objectdetection-cv-04/mmdetection3/work_dirs/centernet-update_r50-caffe_fpn_ms-1x_coco_train_exp1_epochs12/epoch_12.pth', help='체크포인트 파일 경로')
-    parser.add_argument('--work-dir', default='/data/ephemeral/home/Hongjoo/mmdetection3/work_dirs/', help='작업 디렉토리')
+    parser.add_argument('--checkpoint', default='/data/ephemeral/home/Hongjoo/level2-objectdetection-cv-04/mmdetection3/work_dirs/centernet-update_r101_fpn_8xb8-amp-lsj-200e_coco_t1/epoch_1.pth', help='체크포인트 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/t1_inference', help='작업 디렉토리')
     parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--output-dir', default='inference_results/t1_epoch12', help='결과 저장 디렉토리')
+    parser.add_argument('--output-dir', default='inference_results/test1', help='결과 저장 디렉토리')
     parser.add_argument('--score-thr', type=float, default=0.05, help='점수 임계값')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
     return parser.parse_args()
@@ -34,6 +34,7 @@ def main():
     cfg.model.bbox_head.num_classes = 10
     
     # 설정 수정
+    cfg.data_root = args.data_root
     cfg.work_dir = args.work_dir  # 이 줄을 추가
     cfg.load_from = args.checkpoint
     cfg.data_root = args.data_root
@@ -46,7 +47,8 @@ def main():
     cfg.test_dataloader.dataset.ann_file = osp.join(args.data_root, 'test.json')
     cfg.test_dataloader.dataset.data_prefix.img = args.data_root
     cfg.test_dataloader.dataset.metainfo = dict(classes=classes)
-
+    cfg.test_dataloader.dataset.data_root = args.data_root
+    
     # 평가기 설정 수정
     cfg.test_evaluator.ann_file = osp.join(args.data_root, 'test.json')
     cfg.test_evaluator.backend_args = None
@@ -69,7 +71,7 @@ def main():
     file_names = []
 
     # 테스트 실행
-    results = runner.test()
+    # results = runner.test() # 이거 주석처리 해야함
 
     # 결과 처리 및 시각화
     for idx, data_sample in enumerate(tqdm(runner.test_dataloader)):
