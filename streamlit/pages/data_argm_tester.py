@@ -28,7 +28,8 @@ def apply_augmentation(image, bboxes, augmentation):
 
 def main():
     dataset_folder = st.selectbox("데이터셋을 선택하세요:", ["train", "test"])
-    
+    # dataset_dir = ../../../dataset/
+    # json_path = os.path.join(dataset_dir, f"{dataset_folder}.json")
     #json_path = f"/data/ephemeral/home/deamin/dataset/{dataset_folder}.json"
     json_path = f"/data/ephemeral/home/data/{dataset_folder}.json"
     annotations = load_annotations(json_path)
@@ -37,6 +38,7 @@ def main():
     selected_image = st.selectbox("이미지를 선택하세요:", image_list)
     
     if selected_image:
+        # image_path  =  os.path.join(dataset_dir, selected_image)
         image_path = os.path.join("/data/ephemeral/home/data/", selected_image)
         image = Image.open(image_path)
         
