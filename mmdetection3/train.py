@@ -3,12 +3,14 @@ from mmengine.config import Config, ConfigDict
 from mmengine.runner import Runner
 from mmdet.utils import register_all_modules
 import os.path as osp
+from mmengine.registry import HOOKS
+from mmengine.hooks import Hook
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
     parser.add_argument('--config', default='/data/ephemeral/home/KenLee/level2-objectdetection-cv-04/mmdetection3/configs/retinanet/retinanet_x101-64x4d_fpn_1x_coco.py', help='설정 파일 경로')
     parser.add_argument('--work-dir', default='./work_dirs/faster-rcnn_r50_fpn_2x_trash', help='로그와 모델을 저장할 디렉토리')
-    parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
+    parser.add_argument('--data-root', default='/data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--epochs', type=int, default=24, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
     parser.add_argument('--lr', type=float, default=0.02, help='학습률')
@@ -67,15 +69,62 @@ def main():
     cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
     cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
 
-    # 기본 훈련 설정의 hook 변경 가능
-    # cfg.default_hooks = dict(
-    #     timer=dict(type='IterTimerHook'),
-    #     logger=dict(type='LoggerHook', interval=50),
-    #     param_scheduler=dict(type='ParamSchedulerHook'),
-    #     checkpoint=dict(type='CheckpointHook', interval=1),
-    #     sampler_seed=dict(type='DistSamplerSeedHook'),
-    #     visualization=dict(type='DetVisualizationHook')
-    # )
+    cfg.optim_wrapper = dict(
+        type = 'OptimWrapper',
+        optimizer=dict(type='SGD', lr=args.lr, momentum=0.9, weight_decay=0.0001), # 0.02
+        # Experiments show that there is no need to turn on clip_grad.
+        # paramwise_cfg=dict(norm_decay_mult=0.))
+        clip_grad=dict(max_norm=35, norm_type=2),
+        accumulative_counts = 4
+        )
+
+    #pipeline 변경
+    cfg.train_pipeline = [
+        dict(type='LoadImageFromFile', backend_args=cfg.backend_args),
+        dict(type='LoadAnnotations', with_bbox=True),
+        dict(type='Resize', scale=(256, 256), keep_ratio=True),
+        dict(type='RandomFlip', prob=0.5),
+        dict(type='PackDetInputs')
+    ]
+    cfg.test_pipeline = [
+        dict(type='LoadImageFromFile', backend_args=cfg.backend_args),
+        dict(type='Resize', scale=(256, 256), keep_ratio=True),
+        # If you don't have a gt annotation, delete the pipeline
+        dict(type='LoadAnnotations', with_bbox=True),
+        dict(
+            type='PackDetInputs',
+            meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
+                    'scale_factor'))
+        ]
+    cfg.img_scales = [(256, 256), (512, 512), (128, 128)]
+    cfg.tta_pipeline = [
+        dict(type='LoadImageFromFile', backend_args=None),
+        dict(
+            type='TestTimeAug',
+            transforms=[[
+                dict(type='Resize', scale=s, keep_ratio=True) for s in cfg.img_scales
+            ], [
+                dict(type='RandomFlip', prob=1.),
+                dict(type='RandomFlip', prob=0.)
+            ], [dict(type='LoadAnnotations', with_bbox=True)],
+                        [
+                            dict(
+                                type='PackDetInputs',
+                                meta_keys=('img_id', 'img_path', 'ori_shape',
+                                        'img_shape', 'scale_factor', 'flip',
+                                        'flip_direction'))
+                        ]])
+    ]
+
+    #기본 훈련 설정의 hook 변경 가능
+    cfg.default_hooks = dict(
+        timer=dict(type='IterTimerHook'),
+        logger=dict(type='LoggerHook', interval=50),
+        param_scheduler=dict(type='ParamSchedulerHook'),
+        checkpoint=dict(type='CheckpointHook', interval=1),
+        sampler_seed=dict(type='DistSamplerSeedHook'),
+        visualization=dict(type='DetVisualizationHook')
+    )
 
     # 옵티마이저 설정 수정
     cfg.optim_wrapper.optimizer.lr = args.lr
@@ -92,28 +141,6 @@ def main():
     # Runner 생성 및 훈련 시작
     runner = Runner.from_cfg(cfg)
     runner.train()
-
-    #Wandb log
-    log_config = dict(
-        interval=50,
-        hooks=[
-            dict(type='TextLoggerHook'),
-            dict(
-                type='WandbLoggerHook',
-                init_kwargs=dict(
-                    project='retinanet_x101_project',
-                    entity='jongseo001111-naver',  # Replace with your WandB username
-                    config=dict(
-                        lr = 0.01, 
-                        batch_size = 4,  
-                        num_epochs = 12,  
-                        backbone ='ResNeXt',
-                        depth = 101
-                    )
-                )
-            )
-        ]
-    )
 
 if __name__ == '__main__':
     main()
