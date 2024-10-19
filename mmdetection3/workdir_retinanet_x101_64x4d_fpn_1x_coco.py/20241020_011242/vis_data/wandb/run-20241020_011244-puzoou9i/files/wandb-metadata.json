@@ -1,0 +1,43 @@
+{
+  "os":  "Linux-5.4.0-99-generic-x86_64-with-glibc2.31",
+  "python":  "3.10.13",
+  "startedAt":  "2024-10-19T16:12:44.806257Z",
+  "program":  "/data/ephemeral/home/KenLee/level2-objectdetection-cv-04/mmdetection3/train.py",
+  "codePath":  "mmdetection3/train.py",
+  "git":  {
+    "remote":  "https://github.com/boostcampaitech7/level2-objectdetection-cv-04.git",
+    "commit":  "9cb4d58fcd5485b21116eee767205fb4a56a6faa"
+  },
+  "email":  "jongseo001111@gmail.com",
+  "root":  "/data/ephemeral/home/KenLee/level2-objectdetection-cv-04/mmdetection3/workdir_retinanet_x101_64x4d_fpn_1x_coco.py/20241020_011242/vis_data",
+  "host":  "instance-12542",
+  "username":  "root",
+  "executable":  "/opt/conda/bin/python",
+  "codePathLocal":  "train.py",
+  "cpu_count":  8,
+  "cpu_count_logical":  8,
+  "gpu":  "Tesla V100-SXM2-32GB",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "52573995008",
+      "used":  "42917163008"
+    }
+  },
+  "memory":  {
+    "total":  "94903173120"
+  },
+  "cpu":  {
+    "count":  8,
+    "countLogical":  8
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "Tesla V100-SXM2-32GB",
+      "memoryTotal":  "34359738368",
+      "cudaCores":  5120,
+      "architecture":  "Volta"
+    }
+  ],
+  "cudaVersion":  "12.2"
+}

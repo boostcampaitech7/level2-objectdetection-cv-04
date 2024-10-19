@@ -1,0 +1,490 @@
+_wandb:
+    value:
+        cli_version: 0.18.5
+        m: []
+        python_version: 3.10.13
+        t:
+            "1":
+                - 1
+                - 5
+                - 37
+                - 38
+                - 41
+                - 43
+                - 53
+                - 55
+                - 80
+                - 82
+            "2":
+                - 1
+                - 5
+                - 37
+                - 38
+                - 41
+                - 43
+                - 53
+                - 55
+                - 80
+                - 82
+            "3":
+                - 2
+                - 23
+                - 55
+            "4": 3.10.13
+            "5": 0.18.5
+            "8":
+                - 5
+            "12": 0.18.5
+            "13": linux-x86_64
+auto_scale_lr:
+    value:
+        base_batch_size: 16
+        enable: false
+backend_args:
+    value: null
+data_root:
+    value: data/coco/
+dataset_type:
+    value: CocoDataset
+default_hooks:
+    value:
+        checkpoint:
+            interval: 1
+            type: CheckpointHook
+        logger:
+            interval: 50
+            type: LoggerHook
+        param_scheduler:
+            type: ParamSchedulerHook
+        sampler_seed:
+            type: DistSamplerSeedHook
+        timer:
+            type: IterTimerHook
+        visualization:
+            type: DetVisualizationHook
+default_scope:
+    value: mmdet
+env_cfg:
+    value:
+        cudnn_benchmark: false
+        dist_cfg:
+            backend: nccl
+        mp_cfg:
+            mp_start_method: fork
+            opencv_num_threads: 0
+gpu_ids:
+    value:
+        - 0
+img_scales:
+    value:
+        - - 256
+          - 256
+        - - 512
+          - 512
+        - - 1024
+          - 1024
+load_from:
+    value: null
+log_level:
+    value: INFO
+log_processor:
+    value:
+        by_epoch: true
+        type: LogProcessor
+        window_size: 50
+model:
+    value:
+        backbone:
+            base_width: 4
+            depth: 101
+            frozen_stages: 1
+            groups: 64
+            init_cfg:
+                checkpoint: open-mmlab://resnext101_64x4d
+                type: Pretrained
+            norm_cfg:
+                requires_grad: true
+                type: BN
+            norm_eval: true
+            num_stages: 4
+            out_indices:
+                - 0
+                - 1
+                - 2
+                - 3
+            style: pytorch
+            type: ResNeXt
+        bbox_head:
+            anchor_generator:
+                octave_base_scale: 4
+                ratios:
+                    - 0.5
+                    - 1
+                    - 2
+                scales_per_octave: 3
+                strides:
+                    - 8
+                    - 16
+                    - 32
+                    - 64
+                    - 128
+                type: AnchorGenerator
+            bbox_coder:
+                target_means:
+                    - 0
+                    - 0
+                    - 0
+                    - 0
+                target_stds:
+                    - 1
+                    - 1
+                    - 1
+                    - 1
+                type: DeltaXYWHBBoxCoder
+            feat_channels: 256
+            in_channels: 256
+            loss_bbox:
+                loss_weight: 1
+                type: L1Loss
+            loss_cls:
+                alpha: 0.25
+                gamma: 2
+                loss_weight: 1
+                type: FocalLoss
+                use_sigmoid: true
+            num_classes: 10
+            stacked_convs: 4
+            type: RetinaHead
+        data_preprocessor:
+            bgr_to_rgb: true
+            mean:
+                - 123.675
+                - 116.28
+                - 103.53
+            pad_size_divisor: 32
+            std:
+                - 58.395
+                - 57.12
+                - 57.375
+            type: DetDataPreprocessor
+        neck:
+            add_extra_convs: on_input
+            in_channels:
+                - 256
+                - 512
+                - 1024
+                - 2048
+            num_outs: 5
+            out_channels: 256
+            start_level: 1
+            type: FPN
+        test_cfg:
+            max_per_img: 100
+            min_bbox_size: 0
+            nms:
+                iou_threshold: 0.5
+                type: nms
+            nms_pre: 1000
+            score_thr: 0.05
+        train_cfg:
+            allowed_border: -1
+            assigner:
+                ignore_iof_thr: -1
+                min_pos_iou: 0
+                neg_iou_thr: 0.4
+                pos_iou_thr: 0.5
+                type: MaxIoUAssigner
+            debug: false
+            pos_weight: -1
+            sampler:
+                type: PseudoSampler
+        type: RetinaNet
+optim_wrapper:
+    value:
+        accumulative_counts: 4
+        clip_grad:
+            max_norm: 10
+            norm_type: 2
+        optimizer:
+            lr: 0.02
+            momentum: 0.9
+            type: SGD
+            weight_decay: 0.0001
+        type: OptimWrapper
+param_scheduler:
+    value:
+        - begin: 0
+          by_epoch: false
+          end: 500
+          start_factor: 0.001
+          type: LinearLR
+        - begin: 0
+          by_epoch: true
+          end: 20
+          gamma: 0.1
+          milestones:
+            - 10
+            - 15
+          type: MultiStepLR
+resume:
+    value: false
+test_cfg:
+    value:
+        type: TestLoop
+test_dataloader:
+    value:
+        batch_size: 4
+        dataset:
+            ann_file: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/test.json
+            backend_args: null
+            data_prefix:
+                img: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/test
+            data_root: data/coco/
+            metainfo:
+                classes:
+                    - General trash
+                    - Paper
+                    - Paper pack
+                    - Metal
+                    - Glass
+                    - Plastic
+                    - Styrofoam
+                    - Plastic bag
+                    - Battery
+                    - Clothing
+            pipeline:
+                - backend_args: null
+                  type: LoadImageFromFile
+                - keep_ratio: true
+                  scale:
+                    - 1333
+                    - 800
+                  type: Resize
+                - type: LoadAnnotations
+                  with_bbox: true
+                - meta_keys:
+                    - img_id
+                    - img_path
+                    - ori_shape
+                    - img_shape
+                    - scale_factor
+                  type: PackDetInputs
+            test_mode: true
+            type: CocoDataset
+        drop_last: false
+        num_workers: 2
+        persistent_workers: true
+        sampler:
+            shuffle: false
+            type: DefaultSampler
+test_evaluator:
+    value:
+        ann_file: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/test.json
+        backend_args: null
+        format_only: false
+        metric: bbox
+        type: CocoMetric
+test_pipeline:
+    value:
+        - backend_args: null
+          type: LoadImageFromFile
+        - keep_ratio: true
+          scale:
+            - 512
+            - 512
+          type: Resize
+        - type: LoadAnnotations
+          with_bbox: true
+        - meta_keys:
+            - img_id
+            - img_path
+            - ori_shape
+            - img_shape
+            - scale_factor
+          type: PackDetInputs
+train_cfg:
+    value:
+        max_epochs: 20
+        type: EpochBasedTrainLoop
+        val_interval: 1
+train_dataloader:
+    value:
+        batch_sampler:
+            type: AspectRatioBatchSampler
+        batch_size: 4
+        dataset:
+            ann_file: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/train.json
+            backend_args: null
+            data_prefix:
+                img: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/train
+            data_root: data/coco/
+            filter_cfg:
+                filter_empty_gt: true
+                min_size: 32
+            metainfo:
+                classes:
+                    - General trash
+                    - Paper
+                    - Paper pack
+                    - Metal
+                    - Glass
+                    - Plastic
+                    - Styrofoam
+                    - Plastic bag
+                    - Battery
+                    - Clothing
+            pipeline:
+                - backend_args: null
+                  type: LoadImageFromFile
+                - type: LoadAnnotations
+                  with_bbox: true
+                - keep_ratio: true
+                  scale:
+                    - 1333
+                    - 800
+                  type: Resize
+                - prob: 0.5
+                  type: RandomFlip
+                - type: PackDetInputs
+            type: CocoDataset
+        num_workers: 2
+        persistent_workers: true
+        sampler:
+            shuffle: true
+            type: DefaultSampler
+train_pipeline:
+    value:
+        - backend_args: null
+          type: LoadImageFromFile
+        - type: LoadAnnotations
+          with_bbox: true
+        - keep_ratio: true
+          scale:
+            - 512
+            - 512
+          type: Resize
+        - prob: 0.5
+          type: RandomFlip
+        - type: PackDetInputs
+tta_model:
+    value:
+        tta_cfg:
+            max_per_img: 100
+            nms:
+                iou_threshold: 0.5
+                type: nms
+        type: DetTTAModel
+tta_pipeline:
+    value:
+        - backend_args: null
+          type: LoadImageFromFile
+        - transforms:
+            - - keep_ratio: true
+                scale:
+                    - 256
+                    - 256
+                type: Resize
+              - keep_ratio: true
+                scale:
+                    - 512
+                    - 512
+                type: Resize
+              - keep_ratio: true
+                scale:
+                    - 1024
+                    - 1024
+                type: Resize
+            - - prob: 1
+                type: RandomFlip
+              - prob: 0
+                type: RandomFlip
+            - - type: LoadAnnotations
+                with_bbox: true
+            - - meta_keys:
+                    - img_id
+                    - img_path
+                    - ori_shape
+                    - img_shape
+                    - scale_factor
+                    - flip
+                    - flip_direction
+                type: PackDetInputs
+          type: TestTimeAug
+val_cfg:
+    value:
+        type: ValLoop
+val_dataloader:
+    value:
+        batch_size: 4
+        dataset:
+            ann_file: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/val.json
+            backend_args: null
+            data_prefix:
+                img: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/val
+            data_root: data/coco/
+            metainfo:
+                classes:
+                    - General trash
+                    - Paper
+                    - Paper pack
+                    - Metal
+                    - Glass
+                    - Plastic
+                    - Styrofoam
+                    - Plastic bag
+                    - Battery
+                    - Clothing
+            pipeline:
+                - backend_args: null
+                  type: LoadImageFromFile
+                - keep_ratio: true
+                  scale:
+                    - 1333
+                    - 800
+                  type: Resize
+                - type: LoadAnnotations
+                  with_bbox: true
+                - meta_keys:
+                    - img_id
+                    - img_path
+                    - ori_shape
+                    - img_shape
+                    - scale_factor
+                  type: PackDetInputs
+            test_mode: true
+            type: CocoDataset
+        drop_last: false
+        num_workers: 2
+        persistent_workers: true
+        sampler:
+            shuffle: false
+            type: DefaultSampler
+val_evaluator:
+    value:
+        ann_file: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/dataset/val.json
+        backend_args: null
+        classwise: true
+        format_only: false
+        metric: bbox
+        type: CocoMetric
+vis_backends:
+    value:
+        - type: LocalVisBackend
+        - init_kwargs:
+            entity: jongseo001111-naver
+            group: Retinanet_First_Step
+            project: mmdetection3_RetinaNet
+          type: WandbVisBackend
+visualizer:
+    value:
+        name: visualizer
+        type: DetLocalVisualizer
+        vis_backends:
+            - type: LocalVisBackend
+            - init_kwargs:
+                entity: jongseo001111-naver
+                group: Retinanet_First_Step
+                project: mmdetection3_RetinaNet
+              type: WandbVisBackend
+work_dir:
+    value: /data/ephemeral/home/KenLee/level2-objectdetection-cv-04/mmdetection3/workdir_retinanet_x101_64x4d_fpn_1x_coco.py
