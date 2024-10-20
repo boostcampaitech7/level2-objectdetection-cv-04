@@ -1,6 +1,7 @@
 _base_ = [
     '../_base_/datasets/coco_detection.py', '../_base_/default_runtime.py'
 ]
+
 model = dict(
     type='DETR',
     num_queries=100,
@@ -9,25 +10,29 @@ model = dict(
         mean=[123.675, 116.28, 103.53],
         std=[58.395, 57.12, 57.375],
         bgr_to_rgb=True,
-        pad_size_divisor=1),
+        pad_size_divisor=32),  # YOLOv8은 일반적으로 32의 배수를 사용합니다
     backbone=dict(
-        type='ResNet',
-        depth=50,
-        num_stages=4,
-        out_indices=(3, ),
-        frozen_stages=1,
-        norm_cfg=dict(type='BN', requires_grad=False),
-        norm_eval=True,
-        style='pytorch',
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
-    neck=dict(
-        type='ChannelMapper',
-        in_channels=[2048],
-        kernel_size=1,
-        out_channels=256,
-        act_cfg=None,
-        norm_cfg=None,
-        num_outs=1),
+        type='YOLOv8Backbone',
+        out_indices=(2, 3, 4)),  # YOLOv8Backbone에는 'depth' 파라미터가 없습니다
+    neck=[
+        dict(
+            type='FPN',
+            in_channels=[256, 512, 1024],
+            out_channels=256,
+            num_outs=3,
+            add_extra_convs='on_input',
+            relu_before_extra_convs=True
+        ),
+        dict(
+            type='ChannelMapper',
+            in_channels=[256, 256, 256],
+            kernel_size=1,
+            out_channels=256,
+            act_cfg=None,
+            norm_cfg=dict(type='GN', num_groups=32),
+            num_outs=1
+        )
+    ],
     encoder=dict(  # DetrTransformerEncoder
         num_layers=6,
         layer_cfg=dict(  # DetrTransformerEncoderLayer
@@ -65,7 +70,7 @@ model = dict(
     positional_encoding=dict(num_feats=128, normalize=True),
     bbox_head=dict(
         type='DETRHead',
-        num_classes=11,
+        num_classes=10,
         embed_dims=256,
         loss_cls=dict(
             type='CrossEntropyLoss',
@@ -85,6 +90,14 @@ model = dict(
                 dict(type='IoUCost', iou_mode='giou', weight=2.0)
             ])),
     test_cfg=dict(max_per_img=100))
+
+
+
+# dataset settings
+train_dataloader = dict(batch_size=2, num_workers=2)
+val_dataloader = dict(batch_size=1, num_workers=2)
+test_dataloader = val_dataloader
+
 
 # train_pipeline, NOTE the img_scale and the Pad's size_divisor is different
 # from the default setting in mmdet.
@@ -124,6 +137,28 @@ train_pipeline = [
 ]
 train_dataloader = dict(dataset=dict(pipeline=train_pipeline))
 
+# optimizer 설정
+optim_wrapper = dict(
+    type='OptimWrapper',  # 최적화 함수 래퍼 타입
+    optimizer=dict(
+        type='AdamW',  # AdamW 최적화 알고리즘 사용
+        lr=0.0001,  # 학습률(learning rate) 설정
+        weight_decay=0.0001  # 가중치 감쇠(weight decay) 설정
+    ),
+    clip_grad=dict(
+        max_norm=0.1,  # 그래디언트 클리핑 최대 노름 값
+        norm_type=2  # L2 노름 사용
+    ),
+    paramwise_cfg=dict(
+        custom_keys={
+            'backbone': dict(
+                lr_mult=0.1,  # 백본 네트워크의 학습률 조정 계수: 전체 네트워크보다 백본의 학습 속도를 10배 느리게 설정
+                decay_mult=1.0  # 백본 네트워크의 가중치 감쇠 조정 계수: 전체 네트워크와 동일한 가중치 감쇠 적용
+            )
+        }
+    )
+)
+
 # optimizer
 optim_wrapper = dict(
     type='OptimWrapper',
@@ -153,3 +188,18 @@ param_scheduler = [
 # USER SHOULD NOT CHANGE ITS VALUES.
 # base_batch_size = (8 GPUs) x (2 samples per GPU)
 #uto_scale_lr = dict(base_batch_size=16)
+
+import wandb
+
+vis_backends = [
+    dict(type='LocalVisBackend'),
+    dict(type='WandbVisBackend',
+         init_kwargs={
+            'project': 'mmdetection3_RetinaNet',
+            'entity': 'jongseo001111-naver'
+         })
+]
+visualizer = dict(
+    type='DetLocalVisualizer',
+    vis_backends=vis_backends,
+    name='visualizer')
