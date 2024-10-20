@@ -12,11 +12,11 @@ import pandas as pd
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 추론")
-    parser.add_argument('--config', default='./configs/cascade_rcnn/cascade-rcnn_x101-32x4d_fpn_20e_coco.py', help='설정 파일 경로')
-    parser.add_argument('--checkpoint', default='./work_dirs/v5/best_coco_bbox_mAP_50_epoch_17.pth', help='체크포인트 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/v5', help='작업 디렉토리')
+    parser.add_argument('--config', default='./configs/cascade_rcnn/cascade-rcnn_x101_64x4d_fpn_20e_coco.py', help='설정 파일 경로')
+    parser.add_argument('--checkpoint', default='./work_dirs/v10/best_coco_bbox_mAP_50_epoch_15.pth', help='체크포인트 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/v10', help='작업 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--output-dir', default='inference_results/v5', help='결과 저장 디렉토리')
+    parser.add_argument('--output-dir', default='inference_results/v10', help='결과 저장 디렉토리')
     parser.add_argument('--score-thr', type=float, default=0.05, help='점수 임계값')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')

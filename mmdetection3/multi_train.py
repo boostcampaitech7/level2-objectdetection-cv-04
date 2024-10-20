@@ -7,7 +7,7 @@ import os.path as osp
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade-rcnn_x101_64x4d_fpn_20e_coco.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/v10', help='로그와 모델을 저장할 디렉토리')
+    parser.add_argument('--work-dir', default='./work_dirs/v11', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--epochs', type=int, default=16, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=4, help='배치 크기')
@@ -43,11 +43,10 @@ def main():
     backend_args = None
     train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    # dict(type='Mosaic', img_scale=(1024, 1024)),  # Mosaic을 먼저 적용
+    dict(type='Mosaic', img_scale=(1024, 1024)),  # Mosaic을 먼저 적용
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
-    # dict(type='RandomCrop', crop_size=(384,384)),
-    dict(type='Contrast'),
+    dict(type='RandomCrop', crop_size=(384,384)),
     dict(type='RandomFlip', prob=0.5),
     dict(type='PackDetInputs')
 ]
@@ -80,24 +79,24 @@ def main():
 
 
         # Multi
-    # cfg.train_dataloader.dataset = dict(
-    # # use MultiImageMixDataset wrapper to support mosaic and mixup
-    # type='MultiImageMixDataset',
-    # max_refetch = 1,
-    # dataset=dict(
-    #     type='CocoDataset',
-    #     data_root=args.data_root,
-    #     ann_file=osp.join(args.data_root, 'train.json'),
-    #     data_prefix=dict(img = osp.join(args.data_root, 'train')),
-    #     pipeline=[
-    #         dict(type='LoadImageFromFile', backend_args=backend_args),
-    #         dict(type='LoadAnnotations', with_bbox=True)
-    #     ],
-    #     filter_cfg=dict(filter_empty_gt=False, min_size=32),
-    #     backend_args=backend_args),
-    # pipeline=train_pipeline)
-    # cfg.train_dataloader.dataset.pipeline = train_pipeline
-    # cfg.test_dataloader.dataset.pipeline = test_pipeline
+    cfg.train_dataloader.dataset = dict(
+    # use MultiImageMixDataset wrapper to support mosaic and mixup
+    type='MultiImageMixDataset',
+    max_refetch = 15,
+    dataset=dict(
+        type='CocoDataset',
+        data_root=args.data_root,
+        ann_file=osp.join(args.data_root, 'train.json'),
+        data_prefix=dict(img = osp.join(args.data_root, 'train')),
+        pipeline=[
+            dict(type='LoadImageFromFile', backend_args=backend_args),
+            dict(type='LoadAnnotations', with_bbox=True)
+        ],
+        filter_cfg=dict(filter_empty_gt=False, min_size=32),
+        backend_args=backend_args),
+    pipeline=train_pipeline)
+    cfg.train_dataloader.dataset.pipeline = train_pipeline
+    cfg.test_dataloader.dataset.pipeline = test_pipeline
     #
 
     # 평가기 설정 수정
