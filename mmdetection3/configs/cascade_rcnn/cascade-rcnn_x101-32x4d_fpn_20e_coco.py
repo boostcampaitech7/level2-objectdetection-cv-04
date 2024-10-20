@@ -18,7 +18,6 @@ vis_backends = [
     dict(type='WandbVisBackend',
          init_kwargs={
             'project': 'cascade-rcnn_x101-32x4d',
-            'group': 'faster-rcnn_r50-caffe_fpn_1x_coco',
             'entity': 'jongseo001111-naver'
          })
 ]
