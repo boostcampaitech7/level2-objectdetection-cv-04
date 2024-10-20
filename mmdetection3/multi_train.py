@@ -41,15 +41,45 @@ def main():
     
     img_size = 1024
     backend_args = None
+    # train_pipeline = [
+    # dict(type='LoadImageFromFile'),
+    # dict(type='LoadAnnotations', with_bbox=True),
+    # dict(
+    #     type='Mosaic',
+    #     img_scale=(640, 640),
+    #     pad_val=114.0,
+    #     prob=1.0),
+    # dict(type='RandomFlip', prob=0.5),
+    # dict(type='Resize', scale=(640, 640), keep_ratio=True),
+    # dict(type='Pad', size=(640, 640), pad_val=dict(img=(114.0, 114.0, 114.0))),
+    # dict(type='PackDetInputs')
+    # ]
+
     train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='Mosaic', img_scale=(1024, 1024)),  # Mosaic을 먼저 적용
+    dict(
+        type='Mosaic',
+        img_scale=(480,480),
+        pad_val=114.0,
+        prob=1.0),  # Mosaic을 먼저 적용
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
-    dict(type='RandomCrop', crop_size=(384,384)),
+    # dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
+    # dict(type='RandomCrop', crop_size=(384,384)),
     dict(type='RandomFlip', prob=0.5),
+    dict(type='Pad', size=(480,480), pad_val=dict(img=(114.0, 114.0, 114.0))),
     dict(type='PackDetInputs')
 ]
+## 백업
+#     train_pipeline = [
+#     dict(type='LoadImageFromFile', backend_args=backend_args),
+#     dict(type='Mosaic', img_scale=(1024, 1024)),  # Mosaic을 먼저 적용
+#     dict(type='LoadAnnotations', with_bbox=True),
+#     dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
+#     dict(type='RandomCrop', crop_size=(384,384)),
+#     dict(type='RandomFlip', prob=0.5),
+#     dict(type='PackDetInputs')
+# ]
+##
     test_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
@@ -61,6 +91,8 @@ def main():
                    'scale_factor'))
 ]
     # 데이터셋 설정 수정
+
+
     
     cfg.train_dataloader.dataset.ann_file = osp.join(args.data_root, 'train.json')
     cfg.train_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'train')
@@ -80,21 +112,22 @@ def main():
 
         # Multi
     cfg.train_dataloader.dataset = dict(
-    # use MultiImageMixDataset wrapper to support mosaic and mixup
-    type='MultiImageMixDataset',
-    max_refetch = 15,
-    dataset=dict(
-        type='CocoDataset',
-        data_root=args.data_root,
-        ann_file=osp.join(args.data_root, 'train.json'),
-        data_prefix=dict(img = osp.join(args.data_root, 'train')),
-        pipeline=[
-            dict(type='LoadImageFromFile', backend_args=backend_args),
-            dict(type='LoadAnnotations', with_bbox=True)
-        ],
-        filter_cfg=dict(filter_empty_gt=False, min_size=32),
-        backend_args=backend_args),
-    pipeline=train_pipeline)
+        # use MultiImageMixDataset wrapper to support mosaic and mixup
+        type='MultiImageMixDataset',
+        max_refetch = 15,
+        dataset=dict(
+            type='CocoDataset',
+            data_root=args.data_root,
+            ann_file='../dataset/train.json',
+            metainfo = dict(classes=classes),
+            data_prefix=dict(img = osp.join(args.data_root, 'train')),
+            pipeline=[
+                dict(type='LoadImageFromFile', backend_args=backend_args),
+                dict(type='LoadAnnotations', with_bbox=True)
+            ],
+            filter_cfg=dict(filter_empty_gt=True, min_size=32),
+            backend_args=backend_args),
+        pipeline=train_pipeline)
     cfg.train_dataloader.dataset.pipeline = train_pipeline
     cfg.test_dataloader.dataset.pipeline = test_pipeline
     #
@@ -151,7 +184,7 @@ def main():
 
     cfg.neck = dict(
     type='RFP',
-    rfp_steps=3,  # Number of recursive steps, can be adjusted as needed
+    rfp_steps=1, #3  # Number of recursive steps, can be adjusted as needed
     aspp_out_channels=256,  # The number of output channels for ASPP layer, commonly set to 256
     rfp_backbone=dict(
         type='SwinTransformer',

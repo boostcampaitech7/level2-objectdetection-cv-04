@@ -26,3 +26,4 @@ model = dict(
 #     type='DetLocalVisualizer',
 #     vis_backends=vis_backends,
 #     name='visualizer')
+
