@@ -6,7 +6,7 @@ import os.path as osp
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
-    parser.add_argument('--config', default='./configs/faster_rcnn/faster-rcnn_r50_fpn_2x_coco.py', help='설정 파일 경로')
+    parser.add_argument('--config', default='/data/ephemeral/home/KenLee/level2-objectdetection-cv-04/mmdetection3/configs/retinanet/retinanet_x101-64x4d_fpn_1x_coco.py', help='설정 파일 경로')
     parser.add_argument('--work-dir', default='./work_dirs/faster-rcnn_r50_fpn_2x_trash', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--epochs', type=int, default=24, help='훈련 에폭 수')
@@ -28,8 +28,11 @@ def main():
     classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
-    # 모델 설정 수정
-    cfg.model.roi_head.bbox_head.num_classes = args.num_classes
+    # 2stage 모델에서 사용
+    # cfg.model.roi_head.bbox_head.num_classes = 10
+    
+    # 1stage 모델에서 사용
+    cfg.model.bbox_head.num_classes = 10
 
     # 데이터셋 설정 수정
     cfg.train_dataloader.dataset.ann_file = osp.join(args.data_root, 'train.json')
@@ -89,6 +92,28 @@ def main():
     # Runner 생성 및 훈련 시작
     runner = Runner.from_cfg(cfg)
     runner.train()
+
+    #Wandb log
+    log_config = dict(
+        interval=50,
+        hooks=[
+            dict(type='TextLoggerHook'),
+            dict(
+                type='WandbLoggerHook',
+                init_kwargs=dict(
+                    project='retinanet_x101_project',
+                    entity='jongseo001111-naver',  # Replace with your WandB username
+                    config=dict(
+                        lr = 0.01, 
+                        batch_size = 4,  
+                        num_epochs = 12,  
+                        backbone ='ResNeXt',
+                        depth = 101
+                    )
+                )
+            )
+        ]
+    )
 
 if __name__ == '__main__':
     main()
