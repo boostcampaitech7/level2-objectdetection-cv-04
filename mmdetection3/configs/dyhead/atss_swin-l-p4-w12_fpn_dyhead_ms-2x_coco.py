@@ -30,8 +30,8 @@ model = dict(
         # Please only add indices that would be used
         # in FPN, otherwise some parameter will not be used
         with_cp=False,
-        convert_weights=True,
-        init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
+        convert_weights=True),
+        # init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
     neck=[
         dict(
             type='FPN',
@@ -94,7 +94,7 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
         type='RandomResize',
-        scale=[(2000, 480), (2000, 1200)],
+        scale=[(1024, 1024), (1024, 720)],
         keep_ratio=True,
         backend='pillow'),
     dict(type='RandomFlip', prob=0.5),
@@ -102,7 +102,7 @@ train_pipeline = [
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile', backend_args={{_base_.backend_args}}),
-    dict(type='Resize', scale=(2000, 1200), keep_ratio=True, backend='pillow'),
+    dict(type='Resize', scale=(1024, 1024), keep_ratio=True, backend='pillow'),
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
         type='PackDetInputs',
@@ -115,14 +115,31 @@ train_dataloader = dict(
         type='RepeatDataset',
         times=2,
         dataset=dict(
-            type={{_base_.dataset_type}},
-            data_root={{_base_.data_root}},
-            ann_file='annotations/instances_train2017.json',
-            data_prefix=dict(img='train2017/'),
+            type='CocoDataset',#{{_base_.dataset_type}},
+            data_root='../dataset',#{{_base_.data_root}},
+            ann_file='../dataset/train.json',
+            data_prefix=dict(img='../dataset/train'),
             filter_cfg=dict(filter_empty_gt=True, min_size=32),
             pipeline=train_pipeline,
+            metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
+               "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
             backend_args={{_base_.backend_args}})))
-val_dataloader = dict(dataset=dict(pipeline=test_pipeline))
+
+val_dataloader = dict(
+    batch_size=1,
+    num_workers=2,
+    persistent_workers=True,
+    drop_last=False,
+    sampler=dict(type='DefaultSampler', shuffle=False),
+    dataset=dict(
+        type='CocoDataset',
+        data_root='../dataset',
+        ann_file='../dataset/val.json',
+        data_prefix=dict(img='../dataset/val'),
+        test_mode=True,
+        pipeline=test_pipeline,
+        backend_args={{_base_.backend_args}}))
+# val_dataloader = dict(dataset=dict(pipeline=test_pipeline))
 test_dataloader = val_dataloader
 
 # optimizer
@@ -140,15 +157,15 @@ optim_wrapper = dict(
     clip_grad=None)
 
 
-vis_backends = [
-    dict(type='LocalVisBackend'),
-    dict(type='WandbVisBackend',
-         init_kwargs={
-            'project': 'atss_swin-l-p4-w12_fpn_dyhead_ms-2x',
-            'entity': 'jongseo001111-naver'
-         })
-]
-visualizer = dict(
-    type='DetLocalVisualizer',
-    vis_backends=vis_backends,
-    name='visualizer')
+# vis_backends = [
+#     dict(type='LocalVisBackend'),
+#     dict(type='WandbVisBackend',
+#          init_kwargs={
+#             'project': 'atss_swin-l-p4-w12_fpn_dyhead_ms-2x',
+#             'entity': 'jongseo001111-naver'
+#          })
+# ]
+# visualizer = dict(
+#     type='DetLocalVisualizer',
+#     vis_backends=vis_backends,
+#     name='visualizer')
