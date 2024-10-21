@@ -7,10 +7,10 @@ import os.path as osp
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade-rcnn_x101_64x4d_fpn_20e_coco.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/v11', help='로그와 모델을 저장할 디렉토리')
+    parser.add_argument('--work-dir', default='./work_dirs/MULTIv1', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--epochs', type=int, default=16, help='훈련 에폭 수')
-    parser.add_argument('--batch-size', type=int, default=4, help='배치 크기')
+    parser.add_argument('--batch-size', type=int, default=8, help='배치 크기')
     parser.add_argument('--lr', type=float, default=0.0001, help='학습률')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
     parser.add_argument('--seed', type=int, default=2022, help='랜덤 시드')
@@ -39,7 +39,7 @@ def main():
 
     # Pipeline 설정
     
-    img_size = 1024
+    img_size = 360
     backend_args = None
     # train_pipeline = [
     # dict(type='LoadImageFromFile'),
@@ -59,14 +59,14 @@ def main():
     dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(
         type='Mosaic',
-        img_scale=(480,480),
+        img_scale=(img_size, img_size),
         pad_val=114.0,
         prob=1.0),  # Mosaic을 먼저 적용
     dict(type='LoadAnnotations', with_bbox=True),
     # dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
     # dict(type='RandomCrop', crop_size=(384,384)),
     dict(type='RandomFlip', prob=0.5),
-    dict(type='Pad', size=(480,480), pad_val=dict(img=(114.0, 114.0, 114.0))),
+    dict(type='Pad', size=(img_size, img_size), pad_val=dict(img=(114.0, 114.0, 114.0))),
     dict(type='PackDetInputs')
 ]
 ## 백업
@@ -82,7 +82,7 @@ def main():
 ##
     test_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
+    # dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
     # If you don't have a gt annotation, delete the pipeline
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
