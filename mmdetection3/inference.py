@@ -12,10 +12,10 @@ import pandas as pd
 def parse_args():
     parser = argparse.ArgumentParser(description="ceneternet2모델 추론")
     parser.add_argument('--config', default='./configs/centernet/centernet-update_r50-caffe_fpn_ms-1x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--checkpoint', default='/data/ephemeral/home/Hongjoo/level2-objectdetection-cv-04/mmdetection3/work_dirs/centernet-update_r101_fpn_8xb8-amp-lsj-200e_coco_t1/epoch_1.pth', help='체크포인트 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/t1_inference', help='작업 디렉토리')
+    parser.add_argument('--checkpoint', default='/data/ephemeral/home/Hongjoo/level2-objectdetection-cv-04/mmdetection3/work_dirs/centernet-update_r101_fpn_8xb8-amp-lsj-200e_coco_epoch20_train2/epoch_20.pth', help='체크포인트 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/inference_train2_epoch20', help='작업 디렉토리')
     parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--output-dir', default='inference_results/test1', help='결과 저장 디렉토리')
+    parser.add_argument('--output-dir', default='inference_results/train2_epoch20', help='결과 저장 디렉토리')
     parser.add_argument('--score-thr', type=float, default=0.05, help='점수 임계값')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
     return parser.parse_args()
