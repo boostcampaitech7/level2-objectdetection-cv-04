@@ -138,3 +138,17 @@ optim_wrapper = dict(
             'norm': dict(decay_mult=0.)
         }),
     clip_grad=None)
+
+
+vis_backends = [
+    dict(type='LocalVisBackend'),
+    dict(type='WandbVisBackend',
+         init_kwargs={
+            'project': 'atss_swin-l-p4-w12_fpn_dyhead_ms-2x',
+            'entity': 'jongseo001111-naver'
+         })
+]
+visualizer = dict(
+    type='DetLocalVisualizer',
+    vis_backends=vis_backends,
+    name='visualizer')
