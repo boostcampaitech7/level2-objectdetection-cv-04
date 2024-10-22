@@ -44,7 +44,7 @@ def main():
     backend_args = None
     # dataset settings
     train_pipeline = [
-        dict(type='LoadImageFromFile', backend_args={{backend_args}}),
+        dict(type='LoadImageFromFile', backend_args=backend_args),
         dict(type='LoadAnnotations', with_bbox=True),
         dict(
             type='RandomResize',
@@ -55,7 +55,7 @@ def main():
         dict(type='PackDetInputs')
     ]
     test_pipeline = [
-        dict(type='LoadImageFromFile', backend_args={{backend_args}}),
+        dict(type='LoadImageFromFile', backend_args=backend_args),
         dict(type='Resize', scale=(1024,1024), keep_ratio=True, backend='pillow'),
         dict(type='LoadAnnotations', with_bbox=True),
         dict(
@@ -107,7 +107,7 @@ def main():
                 pipeline=train_pipeline,
                 metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
                 "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
-                backend_args={{None}})))
+                backend_args=backend_args)))
 
         cv_cfg.val_dataloader = dict(
             batch_size=1,
@@ -124,7 +124,7 @@ def main():
                 pipeline=test_pipeline,
                 metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
                     "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
-                backend_args={{None}}))
+                backend_args=backend_args))
         # val_dataloader = dict(dataset=dict(pipeline=test_pipeline))
         test_dataloader = cv_cfg.val_dataloader
         # 데이터셋 설정 수정

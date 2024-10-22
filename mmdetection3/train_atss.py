@@ -9,7 +9,7 @@ def parse_args():
     parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco_default_dataset.py', help='설정 파일 경로')
     parser.add_argument('--work-dir', default='./work_dirs/atss_kFold', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--epochs', type=int, default=14, help='훈련 에폭 수')
+    parser.add_argument('--epochs', type=int, default=20, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
     parser.add_argument('--lr', type=float, default=0.00005, help='학습률')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
@@ -37,32 +37,6 @@ def main():
         # cfg.model.init_cfg = dict(type='Pretrained', checkpoint=args.pretrained, prefix='backbone', strict=False)
     ##
 
-    # Pipeline 설정
-    
-    img_size = 480
-    backend_args = None
-    train_pipeline = [
-    dict(type='LoadImageFromFile', backend_args=backend_args),
-    # dict(type='Mosaic', img_scale=(1024, 1024)),  # Mosaic을 먼저 적용
-    dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 384)], keep_ratio=True),
-    # dict(type='RandomCrop', crop_size=(384,384)),
-    dict(type='Contrast'),
-    dict(type='RandomFlip', prob=0.5),
-    dict(type='PackDetInputs')
-]
-    test_pipeline = [
-    dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 384)], keep_ratio=True),
-    # If you don't have a gt annotation, delete the pipeline
-    dict(type='LoadAnnotations', with_bbox=True),
-    dict(
-        type='PackDetInputs',
-        meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
-                   'scale_factor'))
-]
-    cfg.train_dataloader.dataset.pipeline = train_pipeline
-    cfg.test_dataloader.dataset.pipeline = test_pipeline
     # 데이터셋 설정 수정
     cfg.train_dataloader.batch_size = args.batch_size
     cfg.val_dataloader.batch_size = args.batch_size
@@ -80,13 +54,13 @@ def main():
 
     cfg.param_scheduler[0] = dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500)
     cfg.param_scheduler[1] = dict(
-    type='CosineAnnealingLR',
-    T_max=6,  # Specify the epochs at which to decrease the learning rate
-    eta_min=0.000000005,               # Factor by which the learning rate will be reduced
-    begin=1,                 # Start iteration
-    end=6,                  # End iteration (adjust as needed)
-    by_epoch=True            # Whether to apply this by epoch
-)
+        type='CosineAnnealingLR',
+        T_max=20,  # Specify the epochs at which to decrease the learning rate
+        eta_min=0.0000002,               # Factor by which the learning rate will be reduced
+        begin=1,                 # Start iteration
+        end=20,                  # End iteration (adjust as needed)
+        by_epoch=True            # Whether to apply this by epoch
+    )
 
     cfg.default_hooks.timer = dict(type='IterTimerHook')
     cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
