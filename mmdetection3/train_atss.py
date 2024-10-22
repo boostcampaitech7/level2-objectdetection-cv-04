@@ -91,9 +91,6 @@ def main():
     by_epoch=True            # Whether to apply this by epoch
 )
 
-    cfg.train_cfg.max_epochs = args.epochs
-    cfg.train_cfg.val_interval = 1
-
     cfg.default_hooks.timer = dict(type='IterTimerHook')
     cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
     cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
