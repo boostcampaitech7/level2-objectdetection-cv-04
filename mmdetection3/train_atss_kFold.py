@@ -9,7 +9,7 @@ def parse_args():
     parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco_default_dataset.py', help='설정 파일 경로')
     parser.add_argument('--work-dir', default='./work_dirs/atss_kFold', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--epochs', type=int, default=14, help='훈련 에폭 수')
+    parser.add_argument('--epochs', type=int, default=20, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
     parser.add_argument('--lr', type=float, default=0.00005, help='학습률')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
@@ -77,17 +77,17 @@ def main():
     cfg.gpu_ids = args.gpu_ids
     scheduler_list = [dict(
         type='CosineAnnealingLR',
-        T_max=6,  # Specify the epochs at which to decrease the learning rate
-        eta_min=0.000000005,               # Factor by which the learning rate will be reduced
+        T_max=20,  # Specify the epochs at which to decrease the learning rate
+        eta_min=0.0000002,               # Factor by which the learning rate will be reduced
         begin=1,                 # Start iteration
-        end=6,                  # End iteration (adjust as needed)
+        end=20,                  # End iteration (adjust as needed)
         by_epoch=True            # Whether to apply this by epoch
     ), dict(
         begin=1,
         by_epoch=True,
         end=20,
         gamma=0.5,
-        milestones=[8, 11, 13, 16], 
+        milestones=[5, 8, 11, 13, 15], 
         type='MultiStepLR')]
     
     for i in range(args.fold):
@@ -119,7 +119,7 @@ def main():
                 type='CocoDataset',
                 data_root='../dataset',
                 ann_file=f'../dataset/val_fold_{i}.json',
-                data_prefix=dict(img=f'../dataset/val_fold_{i}'),
+                data_prefix=dict(img='../dataset/train'),
                 test_mode=True,
                 pipeline=test_pipeline,
                 metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
