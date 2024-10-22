@@ -7,11 +7,11 @@ import os.path as osp
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
     parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco_default_dataset.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/atssv2', help='로그와 모델을 저장할 디렉토리')
+    parser.add_argument('--work-dir', default='./work_dirs/atss_kFold', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--epochs', type=int, default=16, help='훈련 에폭 수')
+    parser.add_argument('--epochs', type=int, default=14, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
-    parser.add_argument('--lr', type=float, default=0.0001, help='학습률')
+    parser.add_argument('--lr', type=float, default=0.00005, help='학습률')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
     parser.add_argument('--seed', type=int, default=2022, help='랜덤 시드')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
@@ -39,13 +39,13 @@ def main():
 
     # Pipeline 설정
     
-    img_size = 448
+    img_size = 480
     backend_args = None
     train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
     # dict(type='Mosaic', img_scale=(1024, 1024)),  # Mosaic을 먼저 적용
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 224)], keep_ratio=True),
+    dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 384)], keep_ratio=True),
     # dict(type='RandomCrop', crop_size=(384,384)),
     dict(type='Contrast'),
     dict(type='RandomFlip', prob=0.5),
@@ -53,7 +53,7 @@ def main():
 ]
     test_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 224)], keep_ratio=True),
+    dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 384)], keep_ratio=True),
     # If you don't have a gt annotation, delete the pipeline
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
@@ -61,6 +61,8 @@ def main():
         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
                    'scale_factor'))
 ]
+    cfg.train_dataloader.dataset.pipeline = train_pipeline
+    cfg.test_dataloader.dataset.pipeline = test_pipeline
     # 데이터셋 설정 수정
     cfg.train_dataloader.batch_size = args.batch_size
     cfg.val_dataloader.batch_size = args.batch_size
@@ -76,58 +78,19 @@ def main():
     cfg.val_evaluator.classwise = True
     cfg.test_evaluator.ann_file = osp.join(args.data_root, 'test.json')
 
-    # cfg.optim_wrapper.optimizer = dict(type='AdamW', 
-    #                      lr=args.lr, 
-    #                      weight_decay=0.0001)
-    # cfg.optim_wrapper.type='OptimWrapper'
-
     cfg.param_scheduler[0] = dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500)
     cfg.param_scheduler[1] = dict(
-    type='MultiStepLR',
-    milestones=[8,11,13,16],  # Specify the epochs at which to decrease the learning rate
-    gamma=0.5,               # Factor by which the learning rate will be reduced
+    type='CosineAnnealingLR',
+    T_max=6,  # Specify the epochs at which to decrease the learning rate
+    eta_min=0.000000005,               # Factor by which the learning rate will be reduced
     begin=1,                 # Start iteration
-    end=20,                  # End iteration (adjust as needed)
+    end=6,                  # End iteration (adjust as needed)
     by_epoch=True            # Whether to apply this by epoch
 )
 
     cfg.default_hooks.timer = dict(type='IterTimerHook')
     cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)
     cfg.default_hooks.param_scheduler = dict(type='ParamSchedulerHook')
-
-#     cfg.neck = dict(
-#     type='RFP',
-#     rfp_steps=3,  # Number of recursive steps, can be adjusted as needed
-#     aspp_out_channels=256,  # The number of output channels for ASPP layer, commonly set to 256
-#     rfp_backbone=dict(
-#         type='SwinTransformer',
-#         pretrain_img_size=384,
-#         in_channels=3,
-#         embed_dims=192,
-#         patch_size=4,
-#         window_size=12,
-#         mlp_ratio=4,
-#         depths=[2, 2, 18, 2],
-#         num_heads=[4, 8, 16, 32],
-#         strides=(4, 2, 2, 2),
-#         out_indices=(0, 1, 2, 3),
-#         qkv_bias=True,
-#         qk_scale=None,
-#         patch_norm=True,
-#         drop_rate=0.0,
-#         attn_drop_rate=0.0,
-#         drop_path_rate=0.3,
-#         use_abs_pos_embed=False,
-#         act_cfg=dict(type='GELU'),
-#         norm_cfg=dict(type='LN'),
-#         init_cfg=dict(type='Pretrained', checkpoint='https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22k.pth')
-#     ),
-#     in_channels=[384, 768, 1536, 3072],
-#     out_channels=256,
-#     num_outs=5
-# )
-    # cfg.model.rpn_head.anchor_generator.ratios = [0.25, 0.35, 0.5, 1.0, 1.5, 2.0]
-###
 
     # 기본 훈련 설정의 hook 변경 가능
     cfg.default_hooks = dict(

@@ -109,34 +109,22 @@ test_pipeline = [
         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
                    'scale_factor'))
 ]
-# train_dataloader = dict(
-#     dataset=dict(
-#         _delete_=True,
-#         type='RepeatDataset',
-#         times=2,
-#         dataset=dict(
-#             type='CocoDataset',#{{_base_.dataset_type}},
-#             data_root='../dataset',#{{_base_.data_root}},
-#             ann_file='train.json',
-#             data_prefix=dict(img='train'),
-#             filter_cfg=dict(filter_empty_gt=True, min_size=32),
-#             pipeline=train_pipeline,
-#             metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
-#                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
-#             backend_args={{_base_.backend_args}})))
-
 train_dataloader = dict(
     dataset=dict(
-        type='CocoDataset',  # 일반 Dataset 사용
-        data_root='../dataset',
-        ann_file='train.json',
-        data_prefix=dict(img='train'),
-        filter_cfg=dict(filter_empty_gt=True, min_size=32),
-        pipeline=train_pipeline,
-        metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
-                               "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
-        backend_args={{_base_.backend_args}})
-)
+        _delete_=True,
+        type='RepeatDataset',
+        times=2,
+        dataset=dict(
+            type='CocoDataset',#{{_base_.dataset_type}},
+            data_root='../dataset',#{{_base_.data_root}},
+            ann_file='train.json',
+            data_prefix=dict(img='train'),
+            filter_cfg=dict(filter_empty_gt=True, min_size=32),
+            pipeline=train_pipeline,
+            metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
+               "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
+            backend_args={{_base_.backend_args}})))
+
 val_dataloader = dict(
     batch_size=1,
     num_workers=2,
