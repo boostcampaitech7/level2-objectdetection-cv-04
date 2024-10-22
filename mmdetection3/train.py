@@ -212,18 +212,10 @@ def main():
 
     # GPU 설정
     cfg.gpu_ids = args.gpu_ids
-    # numeric_dirs = [d for d in os.listdir(cfg.work_dir) if re.match(r'^\d', d)]
-
-# 필터된 항목을 역순으로 정렬하고 마지막 항목 선택
-    # latest_dir = sorted(numeric_dirs, reverse=True)[0] if numeric_dirs else None
-    # CustomHook 추가
-    # cfg.custom_hooks = [
-    #     dict(type='CustomCheckpointHook')
-    # ]
-
+    
     # Runner 생성 및 훈련 시작
     runner = Runner.from_cfg(cfg)
     runner.train()
-
+    
 if __name__ == '__main__':
     main()
