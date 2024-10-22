@@ -6,8 +6,8 @@ import os.path as osp
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
-    parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/atssv1', help='로그와 모델을 저장할 디렉토리')
+    parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco_default_dataset.py', help='설정 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/atssv2', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--epochs', type=int, default=16, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
@@ -39,13 +39,13 @@ def main():
 
     # Pipeline 설정
     
-    img_size = 1024
+    img_size = 448
     backend_args = None
     train_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
     # dict(type='Mosaic', img_scale=(1024, 1024)),  # Mosaic을 먼저 적용
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
+    dict(type='RandomResize', scale=[(img_size,img_size), (img_size, 224)], keep_ratio=True),
     # dict(type='RandomCrop', crop_size=(384,384)),
     dict(type='Contrast'),
     dict(type='RandomFlip', prob=0.5),
@@ -53,7 +53,7 @@ def main():
 ]
     test_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
-    dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 800)], keep_ratio=True),
+    dict(type='MultiScaleFlipAug', scale=[(img_size,img_size), (img_size, 224)], keep_ratio=True),
     # If you don't have a gt annotation, delete the pipeline
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
@@ -65,7 +65,6 @@ def main():
     cfg.train_dataloader.batch_size = args.batch_size
     cfg.val_dataloader.batch_size = args.batch_size
 
-    cfg.test_dataloader.dataset.ann_file = osp.join(args.data_root, 'test.json')
     cfg.test_dataloader.dataset.ann_file = osp.join(args.data_root, 'test.json')
     cfg.test_dataloader.dataset.data_prefix.img = osp.join(args.data_root, 'test')
     cfg.test_dataloader.dataset.metainfo = dict(classes=classes)
