@@ -6,7 +6,7 @@ from sklearn.model_selection import StratifiedGroupKFold
 from datetime import datetime
 
 # Load annotations
-annotation = '../dataset/train.json'
+annotation = '../dataset_original/train.json'
 with open(annotation) as f: 
     data = json.load(f)
 
@@ -21,7 +21,7 @@ def format_image_id(image_id):
     return f"{int(image_id):04d}.jpg"  # Format to 4 digits with leading zeros
 
 # Create StratifiedGroupKFold object
-cv = StratifiedGroupKFold(n_splits=6, shuffle=True, random_state=411)
+cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=411)
 
 # Use the first split for train and val
 for i, (train_idx, val_idx) in enumerate(cv.split(X, y, groups)):
