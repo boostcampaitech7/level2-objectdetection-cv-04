@@ -48,7 +48,7 @@ def main():
     dict(type='RandomFlip', prob=0.5),
     dict(
         type='PhotoMetricDistortion',
-        brightness_delta=11,  # 비활성화 (무작위 밝기 조정 제거)
+        brightness_delta=0,  # 비활성화 (무작위 밝기 조정 제거)
         contrast_range=(0.5, 1.5),  # 비활성화 (무작위 대비 조정 제거)
         saturation_range=(0.5, 1.5),  # 채도 조정만 활성화
         hue_delta=18  # 색상 조정만 활성화
@@ -118,7 +118,7 @@ def main():
     cfg.param_scheduler[1] = dict(
     type='CosineAnnealingLR',
     T_max=args.epochs,              # 학습률이 한 주기에서 감소하는 최대 단계 (보통 epoch 수와 동일하게 설정)
-    eta_min=0.0000005,       # 학습률의 최소값 (필요시 조정)
+    eta_min=0.000000005,       # 학습률의 최소값 (필요시 조정)
     begin=1,               # 학습 시작 epoch
     end=args.epochs,                # 학습 종료 epoch
     by_epoch=True          # 에폭 단위로 적용
