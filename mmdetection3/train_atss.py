@@ -6,8 +6,8 @@ import os.path as osp
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 훈련")
-    parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco_default_dataset.py', help='설정 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/atss_kFold', help='로그와 모델을 저장할 디렉토리')
+    parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco.py', help='설정 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/atss_kFold2', help='로그와 모델을 저장할 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--epochs', type=int, default=20, help='훈련 에폭 수')
     parser.add_argument('--batch-size', type=int, default=2, help='배치 크기')
@@ -48,19 +48,26 @@ def main():
 
 
     # 평가기 설정 수정
-    cfg.val_evaluator.ann_file = osp.join(args.data_root, 'val.json')
+    cfg.val_evaluator.ann_file = osp.join(args.data_root, 'val_fold_1.json')
     cfg.val_evaluator.classwise = True
     cfg.test_evaluator.ann_file = osp.join(args.data_root, 'test.json')
 
     cfg.param_scheduler[0] = dict(type='LinearLR', start_factor=0.001, by_epoch=False, begin=0, end=500)
     cfg.param_scheduler[1] = dict(
-        type='CosineAnnealingLR',
-        T_max=20,  # Specify the epochs at which to decrease the learning rate
-        eta_min=0.0000002,               # Factor by which the learning rate will be reduced
-        begin=1,                 # Start iteration
-        end=20,                  # End iteration (adjust as needed)
-        by_epoch=True            # Whether to apply this by epoch
-    )
+    type='MultiStepLR',
+    milestones=[8,11,14,16,18,19],  # 학습률을 감소시킬 에포크
+    gamma=0.5,            # 학습률 감소 비율
+    begin=1,              # 시작 에포크
+    end=args.epochs,               # 종료 에포크 (필요에 따라 조정)
+    by_epoch=True         # 에포크 단위로 적용할지 여부
+)
+    #     type='CosineAnnealingLR',
+    #     T_max=20,  # Specify the epochs at which to decrease the learning rate
+    #     eta_min=0.0000002,               # Factor by which the learning rate will be reduced
+    #     begin=1,                 # Start iteration
+    #     end=20,                  # End iteration (adjust as needed)
+    #     by_epoch=True            # Whether to apply this by epoch
+    # )
 
     cfg.default_hooks.timer = dict(type='IterTimerHook')
     cfg.default_hooks.logger = dict(type='LoggerHook', interval=50)

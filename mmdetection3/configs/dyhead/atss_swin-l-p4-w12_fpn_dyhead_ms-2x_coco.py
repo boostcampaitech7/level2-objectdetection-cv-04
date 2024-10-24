@@ -94,10 +94,17 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
         type='RandomResize',
-        scale=[(1024,1024), (1024, 720)],
+        scale=[(1024,1024), (1024, 800)],
         keep_ratio=True,
         backend='pillow'),
     dict(type='RandomFlip', prob=0.5),
+    dict(
+        type='PhotoMetricDistortion',
+        brightness_delta=18,  # 비활성화 (무작위 밝기 조정 제거)
+        contrast_range=(0.5, 1.5),  # 비활성화 (무작위 대비 조정 제거)
+        saturation_range=(0.5, 1.5),  # 채도 조정만 활성화
+        hue_delta=18  # 색상 조정만 활성화
+    ),
     dict(type='PackDetInputs')
 ]
 test_pipeline = [
@@ -109,21 +116,34 @@ test_pipeline = [
         meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
                    'scale_factor'))
 ]
+
 train_dataloader = dict(
     dataset=dict(
-        _delete_=True,
-        type='RepeatDataset',
-        times=2,
-        dataset=dict(
-            type='CocoDataset',#{{_base_.dataset_type}},
-            data_root='../dataset',#{{_base_.data_root}},
-            ann_file='train.json',
-            data_prefix=dict(img='train'),
-            filter_cfg=dict(filter_empty_gt=True, min_size=32),
-            pipeline=train_pipeline,
-            metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
-               "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
-            backend_args={{_base_.backend_args}})))
+        type='CocoDataset',  # 일반 Dataset 사용
+        data_root='../dataset',
+        ann_file='train_fold_1.json',
+        data_prefix=dict(img='train'),
+        filter_cfg=dict(filter_empty_gt=True, min_size=32),
+        pipeline=train_pipeline,
+        metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
+                               "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
+        backend_args={{_base_.backend_args}})
+)
+# train_dataloader = dict(
+#     dataset=dict(
+#         _delete_=True,
+#         type='RepeatDataset',
+#         times=2,
+#         dataset=dict(
+#             type='CocoDataset',#{{_base_.dataset_type}},
+#             data_root='../dataset',#{{_base_.data_root}},
+#             ann_file='train_fold_0.json',
+#             data_prefix=dict(img='train'),
+#             filter_cfg=dict(filter_empty_gt=True, min_size=32),
+#             pipeline=train_pipeline,
+#             metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
+#                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")),
+#             backend_args={{_base_.backend_args}})))
 
 val_dataloader = dict(
     batch_size=1,
@@ -134,8 +154,8 @@ val_dataloader = dict(
     dataset=dict(
         type='CocoDataset',
         data_root='../dataset',
-        ann_file='../dataset/val.json',
-        data_prefix=dict(img='../dataset/val'),
+        ann_file='../dataset/val_fold_1.json',
+        data_prefix=dict(img='../dataset/train'),
         test_mode=True,
         pipeline=test_pipeline,
         metainfo=dict(classes=("General trash", "Paper", "Paper pack", "Metal", "Glass", 

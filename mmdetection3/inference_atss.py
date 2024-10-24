@@ -13,10 +13,10 @@ import pandas as pd
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 추론")
     parser.add_argument('--config', default='./configs/dyhead/atss_swin-l-p4-w12_fpn_dyhead_ms-2x_coco_default_dataset.py', help='설정 파일 경로')
-    parser.add_argument('--checkpoint', default='./work_dirs/atssv1/best_coco_bbox_mAP_50_epoch_13.pth', help='체크포인트 파일 경로')
-    parser.add_argument('--work-dir', default='./work_dirs/atssv1', help='작업 디렉토리')
+    parser.add_argument('--checkpoint', default='./work_dirs/atss_kFold2/best_coco_bbox_mAP_50_epoch_17.pth', help='체크포인트 파일 경로')
+    parser.add_argument('--work-dir', default='./work_dirs/atss_kFold2', help='작업 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
-    parser.add_argument('--output-dir', default='inference_results/atssv1', help='결과 저장 디렉토리')
+    parser.add_argument('--output-dir', default='inference_results/atss_kFold2', help='결과 저장 디렉토리')
     parser.add_argument('--score-thr', type=float, default=0.05, help='점수 임계값')
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
@@ -56,14 +56,6 @@ def main():
     test_pipeline = [
     dict(type='LoadImageFromFile', backend_args=backend_args),
     dict(type='Resize', scale=(img_size,img_size), keep_ratio=True),
-    # dict(type='MultiScaleFlipAug',
-    #     scales=[(img_size, img_size), (img_size, 800)],  # List of different scales
-    #     allow_flip=False,  # Whether to apply flip augmentations
-    #     transforms=[
-    #         dict(type='RandomFlip'),  # Randomly flip images
-    #         dict(type='PackDetInputs')
-    #     ]),
-    # If you don't have a gt annotation, delete the pipeline
     dict(type='LoadAnnotations', with_bbox=True),
     dict(
         type='PackDetInputs',
@@ -158,7 +150,7 @@ def main():
         img_with_text = mmcv.imconvert(img, 'rgb', 'bgr')
         cv2.putText(img_with_text, f'Score Threshold: {args.score_thr}', (10, 30), 
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        mmcv.imwrite(img_with_text, os.path.join(args.output_dir, f'result_{idx}_with_threshold.png'))
+        # mmcv.imwrite(img_with_text, os.path.join(args.output_dir, f'result_{idx}_with_threshold.png'))
 
      # 제출 파일 생성
     submission = pd.DataFrame()
