@@ -13,3 +13,17 @@ model = dict(
         style='pytorch',
         init_cfg=dict(
             type='Pretrained', checkpoint='open-mmlab://resnext101_64x4d')))
+
+# vis_backends = [
+#     dict(type='LocalVisBackend'),
+#     dict(type='WandbVisBackend',
+#          init_kwargs={
+#             'project': 'cascade-rcnn_x101-32x4d',
+#             'entity': 'jongseo001111-naver'
+#          })
+# ]
+# visualizer = dict(
+#     type='DetLocalVisualizer',
+#     vis_backends=vis_backends,
+#     name='visualizer')
+
