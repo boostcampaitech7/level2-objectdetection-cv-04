@@ -27,7 +27,7 @@ detectron2는 최신 버전까지, mmdetection은 2.x 버전까지 지원하므�
 0. setup
    ```
    apt update
-   apt upgrade
+   apt upgrade -y
    apt-get update -y
    apt-get install -y libgl1-mesa-glx
    apt-get install -y libglib2.0-0
@@ -43,6 +43,7 @@ detectron2는 최신 버전까지, mmdetection은 2.x 버전까지 지원하므�
 
 3. Install the required packages:
    ```
+   # requirements에서 mmcv-full 제거
    pip install -r requirements.txt
    ```
 4. Unzip data
@@ -82,9 +83,15 @@ project_root/
 │   ├── train.py
 │   └── inference.py
 │
-├── faster_rcnn/
+├── pytorch_detection/
 │   ├── train.py
-│   └── inference.py
+│   ├── inference.py
+│   └── src/
+│      ├── config.py
+│      ├── inference.py
+│      ├── model.py
+│      ├── trainer.py
+│      └── utils.py
 │
 ├── mmdetection/
 │   ├── mmdetection folders
