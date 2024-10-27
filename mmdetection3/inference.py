@@ -12,12 +12,21 @@ import pandas as pd
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Faster R-CNN 모델 추론")
+<<<<<<< HEAD
+    parser.add_argument('--config', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/configs/detr/detr_r50_8xb2-150e_coco.py', help='설정 파일 경로')
+    parser.add_argument('--checkpoint', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/work_dirs/detr_r50_8xb2-150e_coco_trash/epoch_30.pth', help='체크포인트 파일 경로')
+    parser.add_argument('--work-dir', default='/data/ephemeral/home/backup/level2-objectdetection-cv-04/mmdetection3/work_dirs/', help='작업 디렉토리')
+    parser.add_argument('--data-root', default='/data/ephemeral/home/dataset/', help='데이터셋 루트 디렉토리')
+    parser.add_argument('--output-dir', default='inference_results', help='결과 저장 디렉토리')
+    parser.add_argument('--score-thr', type=float, default=0.25, help='점수 임계값')
+=======
     parser.add_argument('--config', default='./configs/cascade_rcnn/cascade-rcnn_x101_64x4d_fpn_20e_coco.py', help='설정 파일 경로')
     parser.add_argument('--checkpoint', default='./work_dirs/v10/best_coco_bbox_mAP_50_epoch_15.pth', help='체크포인트 파일 경로')
     parser.add_argument('--work-dir', default='./work_dirs/v10', help='작업 디렉토리')
     parser.add_argument('--data-root', default='../dataset/', help='데이터셋 루트 디렉토리')
     parser.add_argument('--output-dir', default='inference_results/v10', help='결과 저장 디렉토리')
     parser.add_argument('--score-thr', type=float, default=0.05, help='점수 임계값')
+>>>>>>> develop
     parser.add_argument('--gpu-ids', type=int, nargs='+', default=[0], help='사용할 GPU ID')
     parser.add_argument('--num-classes', type=int, default=10, help='클래스 수')
     parser.add_argument('--batch-size', type=int, default=1, help='배치 크기')
@@ -35,8 +44,12 @@ def main():
                "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 
     # 모델 설정 수정
+<<<<<<< HEAD
+    cfg.model.bbox_head.num_classes = 10
+=======
     for settings in cfg.model.roi_head.bbox_head:
         settings.num_classes = args.num_classes
+>>>>>>> develop
     
     # 설정 수정
     cfg.work_dir = args.work_dir  # 이 줄을 추가
